@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#54206f">
+  <title>BKMI-Sweetbeauty | Admin Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f7f4f9;
+      color: #333;
+    }
+
+    header {
+      background: #54206f;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    header h2 {
+      margin: 0;
+    }
+
+    button {
+      border: 0;
+      border-radius: 6px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .logout {
+      background: white;
+      color: #54206f;
+    }
+
+    main {
+      padding: 25px;
+      max-width: 1100px;
+      margin: auto;
+    }
+
+    .welcome {
+      background: white;
+      padding: 22px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .summary {
+      background: white;
+      padding: 22px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .summary h2 {
+      color: #54206f;
+      font-size: 32px;
+      margin: 5px 0;
+    }
+
+    .applications {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      overflow-x: auto;
+    }
+
+    .applications h2 {
+      color: #54206f;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 650px;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+
+    th {
+      background: #f2eaf6;
+      color: #54206f;
+    }
+
+    #message {
+      color: #54206f;
+      margin: 15px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h2>BKMI-Sweetbeauty Admin</h2>
+    <button class="logout" id="logoutButton">Sign Out</button>
+  </header>
+
+  <main>
+
+    <section class="welcome">
+      <h1>Welcome, Administrator</h1>
+      <p>Manage your school's applications and student administration.</p>
+    </section>
+
+    <section class="summary">
+      <p>Total Applications Received</p>
+      <h2 id="totalApplications">0</h2>
+    </section>
+
+    <section class="applications">
+      <h2>Student Applications</h2>
+      <p id="message">Loading applications...</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Full Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Course</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="applicationRows"></tbody>
+      </table>
+    </section>
+
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    async function loadDashboard() {
+      const message = document.getElementById("message");
+
+      const { data: authData, error: authError } =
+        await supabaseClient.auth.getUser();
+
+      if (authError || !authData.user) {
+        window.location.href = "admin.html";
+        return;
+      }
+
+      const { data: admin, error: adminError } =
+        await supabaseClient
+          .from("AdminUsers")
+          .select("role")
+          .eq("user_id", authData.user.id)
+          .single();
+
+      if (adminError || !admin || admin.role !== "admin") {
+        await supabaseClient.auth.signOut();
+        window.location.href = "admin.html";
+        return;
+      }
+
+      const { data: applications, error } =
+        await supabaseClient
+          .from("Applications")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+      if (error) {
+        message.textContent =
+          "Could not load applications. Please check your database permissions.";
+        return;
+      }
+
+      document.getElementById("totalApplications").textContent =
+        applications.length;
+
+      const rows = document.getElementById("applicationRows");
+      rows.innerHTML = "";
+
+      if (applications.length === 0) {
+        message.textContent = "No applications have been received yet.";
+        return;
+      }
+
+      message.textContent = "Applications loaded successfully.";
+
+      applications.forEach(application => {
+        const tr = document.createElement("tr");
+
+        const values = [
+          application["Full Name"],
+          application["Phone Number"],
+          application["Email"],
+          application["Course"],
+          application["Application Status"],
+          application["created_at"]
+            ? new Date(application["created_at"]).toLocaleDateString()
+            : ""
+        ];
+
+        values.forEach(value => {
+          const td = document.createElement("td");
+          td.textContent = value || "—";
+          tr.appendChild(td);
+        });
+
+        rows.appendChild(tr);
+      });
+    }
+
+    document.getElementById("logoutButton")
+      .addEventListener("click", async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = "admin.html";
+      });
+
+    loadDashboard();
+  </script>
+
+</body>
+</html>
