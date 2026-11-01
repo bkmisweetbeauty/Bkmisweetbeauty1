@@ -286,7 +286,7 @@ async function loadCourses() {
       <p><b>Early-Bird Fee:</b> ₦${Number(course.Early_Bird_Fee || 0).toLocaleString("en-NG")}</p>
       <p><b>Status:</b> ${course.Is_active ? "Active" : "Inactive"}</p>
       <div class="actions">
-        <button onclick="editCourse('${escapeHTML(course.id)}')">Edit</button>
+       <button type="button" class="edit-course-btn" data-course-id="${escapeHTML(course.id)}">Edit</button>
         <button class="warning" onclick="toggleCourse('${escapeHTML(course.id)}',${!course.Is_active})">
           ${course.Is_active ? "Deactivate" : "Activate"}
         </button>
@@ -294,7 +294,12 @@ async function loadCourses() {
       </div>
     </div>
   `).join("");
-}
+} 
+  container.querySelectorAll(".edit-course-btn").forEach(button => {
+  button.addEventListener("click", function() {
+    editCourse(this.dataset.courseId);
+  });
+});
 
 async function editCourse(id) {
   const { data, error } = await db
