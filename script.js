@@ -6,7 +6,7 @@ const BKMI_WHATSAPP_NUMBER = "2347037115801";
 // Replace these two values with your own Supabase Project URL
 // and Publishable key.
 const SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co/rest/v1/";
-const SUPABASE_PUBLISHABLE_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
 
 const supabaseClient = window.supabase.createClient(
   SUPABASE_URL,
