@@ -1,37 +1,344 @@
 
-<form class="application-form" id="applicationForm">
-  <h3>Online Application</h3>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#54206f">
+  <meta name="description" content="BKMI-Sweetbeauty Cosmetology School, Yaba Lagos. Professional practical beauty training.">
+  <title>BKMI-Sweetbeauty Cosmetology School</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  <label for="fullName">Full name</label>
-  <input id="fullName" name="fullName" required placeholder="Your full name">
+<header class="site-header">
+  <div class="container header-inner">
+    <a href="#home" class="logo">BKMI-SWEETBEAUTY</a>
+    <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+    <nav class="nav">
+      <a href="#home">Home</a>
+      <a href="#about">About</a>
+      <a href="#courses">Courses</a>
+      <a href="#gallery">Gallery</a>
+      <a href="#hostel">Hostel</a>
+      <a href="#admissions">Admissions</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
 
-  <label for="phone">Phone / WhatsApp number</label>
-  <input id="phone" name="phone" required type="tel" placeholder="e.g. 080...">
+<main>
 
-  <label for="email">Email address</label>
-  <input id="email" name="email" type="email" placeholder="Your email address">
+<section class="hero" id="home">
+  <div class="container hero-content">
+    <p class="eyebrow">WELCOME TO BKMI-SWEETBEAUTY</p>
+    <h1>Learn a Skill. Build Your Future.</h1>
+    <p>Professional beauty training in a practical learning environment. Develop your creativity, confidence and skills with us.</p>
+    <div class="hero-buttons">
+      <a href="#courses" class="button button-light">Explore Courses</a>
+      <a href="#admissions" class="button button-outline">Apply Now</a>
+    </div>
+    <p class="tagline">Get Prim &amp; Proper with Us.</p>
+  </div>
+</section>
 
-  <label for="course">Course of interest</label>
-  <select id="course" name="course" required>
-    <option value="">Select a course</option>
-    <option>Hairdressing &amp; Braiding</option>
-    <option>Nail Technology</option>
-    <option>Makeup Artistry</option>
-    <option>Lashes &amp; Brows</option>
-    <option>Facials &amp; Aesthetic Therapy</option>
-    <option>Spa &amp; Body Treatments</option>
-    <option>Barbering &amp; Natural Hair</option>
-    <option>Specialist Beauty Skills</option>
-    <option>More than one course</option>
-  </select>
+<section class="admission-banner">
+  <div class="container">
+    <p class="eyebrow">2027 ADMISSIONS</p>
+    <h2>EARLY BIRD ENROLMENT IS OPEN!</h2>
+    <p>Enjoy special discounted enrolment fees when you register before 31 December 2026.</p>
+    <h3>OFFER CLOSES: 31 DECEMBER 2026</h3>
+    <p class="admission-date">NEW YEAR ADMISSION: 18 JANUARY 2027</p>
+    <a href="#admissions" class="button button-light">Apply Today</a>
+  </div>
+</section>
 
-  <label for="message">Your message (optional)</label>
-  <textarea id="message" name="message" rows="3" placeholder="Ask us about fees, duration or the next intake."></textarea>
+<section class="section" id="about">
+  <div class="container">
+    <p class="eyebrow">ABOUT OUR SCHOOL</p>
+    <h2>Welcome to BKMI-Sweetbeauty Cosmetology School</h2>
+    <p>BKMI-Sweetbeauty Cosmetology School is a beauty training academy located in Yaba, Lagos. We provide practical training for individuals who want to develop professional beauty skills and build opportunities within the beauty industry.</p>
+    <p>Our training combines theory, demonstrations and supervised practical sessions. We encourage discipline, creativity, neatness, hygiene, confidence and excellent customer care.</p>
 
-  <button class="button button-dark" type="submit">Submit application</button>
+    <div class="features-grid">
+      <article class="feature-card">
+        <h3>Practical Training</h3>
+        <p>Learn through demonstrations and supervised hands-on practice.</p>
+      </article>
+      <article class="feature-card">
+        <h3>Professional Development</h3>
+        <p>Develop the confidence and skills needed to serve clients professionally.</p>
+      </article>
+      <article class="feature-card">
+        <h3>Business Awareness</h3>
+        <p>Build an understanding of how to turn your skills into business opportunities.</p>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+</body>
+</html>
 
-  <small class="form-note">Our admissions team will contact you after receiving your application.</small>
-  <p class="form-error" id="formError" role="status"></p>
-</form> 
+<!-- COURSES SECTION -->
+<section class="section courses-section" id="courses">
+  <div class="container">
+    <p class="eyebrow">OUR TRAINING PROGRAMMES</p>
+    <h2>Courses Offered</h2>
+    <p>Choose a professional beauty course and begin building your future.</p>
+
+    <div class="course-grid">
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Cosmetology Course 1</h3>
+          <p>Foundational professional beauty training with practical learning across selected cosmetology skills and techniques.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Cosmetology Course 2</h3>
+          <p>Further professional beauty training designed to develop practical competence in cosmetology services.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Diploma in Hairdressing</h3>
+          <p>Professional hairdressing training covering hair care, styling, treatments and salon techniques.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Makeup &amp; Gele Artistry</h3>
+          <p>Learn professional makeup application, skin preparation, beauty enhancement and gele styling.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Nail Technology</h3>
+          <p>Practical nail training covering manicures, nail extensions, gel systems, nail art and professional finishing.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Professional Braids Course</h3>
+          <p>Learn knotless braids, stitch braids, feed-in braids, Ghana weaving, cornrows and professional finishing.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Professional Wig Training</h3>
+          <p>Learn wig construction, customization, styling, frontal installation and professional wig finishing.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Semi-Permanent Brows and Eyelashes</h3>
+          <p>Learn brow enhancement, microblading, microshading, combination brows and professional lash extension techniques.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Facials &amp; Aesthetic Therapy</h3>
+          <p>Learn facial treatments, skin preparation, skincare procedures and professional client care.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+      <article class="course-card">
+        <div class="course-content">
+          <h3>Barbering &amp; Natural Dreadlocks</h3>
+          <p>Develop practical skills in barbering, haircuts, natural dreadlock creation, maintenance and styling.</p>
+          <p><strong>Duration:</strong> To be confirmed</p>
+          <p><strong>Regular fee:</strong> To be confirmed</p>
+          <p><strong>Early bird fee:</strong> To be confirmed</p>
+          <a href="#admissions">Apply for this course →</a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+<!-- END COURSES SECTION -->
+
+<!-- STUDENT GALLERY -->
+<section class="section gallery-section" id="gallery">
+  <div class="container">
+    <p class="eyebrow">OUR STUDENTS, OUR PRIDE</p>
+    <h2>Student Gallery</h2>
+    <p>Explore practical work, student achievements and beautiful results from BKMI-Sweetbeauty.</p>
+
+    <div class="gallery-grid">
+      <div class="gallery-placeholder">
+        <p>Student Work 1</p>
+      </div>
+      <div class="gallery-placeholder">
+        <p>Student Work 2</p>
+      </div>
+      <div class="gallery-placeholder">
+        <p>Student Work 3</p>
+      </div>
+      <div class="gallery-placeholder">
+        <p>Student Work 4</p>
+      </div>
+    </div>
+
+    <p class="small-note">More student photographs and practical work will be added to this gallery.</p>
+  </div>
+</section>
+
+
+<!-- HOSTEL -->
+<section class="section hostel-section" id="hostel">
+  <div class="container">
+    <p class="eyebrow">ACCOMMODATION</p>
+    <h2>BKMI Sweet Homes</h2>
+    <h3>Home Away from Home</h3>
+
+    <p>
+      Looking for accommodation while studying at BKMI-Sweetbeauty?
+      BKMI Sweet Homes provides accommodation for students and workers
+      within the Yaba axis.
+    </p>
+
+    <div class="hostel-details">
+      <p><strong>Location:</strong> Yaba axis, Lagos</p>
+      <p><strong>Accommodation:</strong> Monthly stay</p>
+      <p><strong>Minimum stay:</strong> One month</p>
+      <p><strong>Shortlet:</strong> Not available</p>
+    </div>
+
+    <a href="https://wa.me/2347037115801?text=Hello%20BKMI%20Sweet%20Homes%2C%20I%20would%20like%20to%20make%20an%20accommodation%20enquiry." class="button button-dark" target="_blank" rel="noopener">Enquire About Accommodation</a>
+  </div>
+</section>
+
+
+<!-- ADMISSIONS -->
+<section class="section admissions-section" id="admissions">
+  <div class="container">
+    <p class="eyebrow">TAKE THE FIRST STEP</p>
+    <h2>Online Course Application</h2>
+    <p>Complete the form below to apply for admission. Our admissions team will contact you.</p>
+
+    <div class="application-box">
+      <form class="application-form" id="applicationForm">
+
+        <label for="fullName">Full Name *</label>
+        <input id="fullName" name="fullName" type="text" placeholder="Enter your full name" required>
+
+        <label for="phone">Phone / WhatsApp Number *</label>
+        <input id="phone" name="phone" type="tel" placeholder="Enter your phone number" required>
+
+        <label for="email">Email Address</label>
+        <input id="email" name="email" type="email" placeholder="Enter your email address">
+
+        <label for="course">Select Your Course *</label>
+        <select id="course" name="course" required>
+          <option value="">Choose a course</option>
+          <option>Cosmetology Course 1</option>
+          <option>Cosmetology Course 2</option>
+          <option>Diploma in Hairdressing</option>
+          <option>Makeup &amp; Gele Artistry</option>
+          <option>Nail Technology</option>
+          <option>Professional Braids Course</option>
+          <option>Professional Wig Training</option>
+          <option>Semi-Permanent Brows and Eyelashes</option>
+          <option>Facials &amp; Aesthetic Therapy</option>
+          <option>Barbering &amp; Natural Dreadlocks</option>
+        </select>
+
+        <label for="message">Message (Optional)</label>
+        <textarea id="message" name="message" rows="4" placeholder="Ask us about fees, duration or admission."></textarea>
+
+        <button class="button button-dark" type="submit">Submit Application</button>
+
+        <p class="form-note">Our admissions team will contact you after receiving your application.</p>
+        <p class="form-error" id="formError" role="status"></p>
+
+      </form>
+    </div>
+  </div>
+</section>
+
+
+<!-- CONTACT -->
+<section class="section contact-section" id="contact">
+  <div class="container">
+    <p class="eyebrow">GET IN TOUCH</p>
+    <h2>Contact BKMI-Sweetbeauty</h2>
+
+    <div class="contact-details">
+      <p><strong>School:</strong> BKMI-Sweetbeauty Cosmetology School</p>
+      <p><strong>Address:</strong> 37, Old Yaba Road by Adekunle Bus Stop, Yaba, Lagos.</p>
+      <p><strong>Phone / WhatsApp:</strong> 07037115801</p>
+      <p><strong>Email:</strong> BKMISweetBeauty@gmail.com</p>
+      <p><strong>Training Days:</strong> Monday – Friday</p>
+      <p><strong>Training Hours:</strong> 10:00am – 2:00pm</p>
+    </div>
+
+    <a href="https://wa.me/2347037115801" class="button button-dark" target="_blank" rel="noopener">Chat With Us on WhatsApp</a>
+  </div>
+</section>
+
+</main>
+
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <h3>BKMI-SWEETBEAUTY</h3>
+    <p>Get Prim &amp; Proper with Us.</p>
+    <p>Professional Beauty Training | Yaba, Lagos</p>
+    <p>&copy; <span id="year"></span> BKMI-Sweetbeauty Cosmetology School. All rights reserved.</p>
+  </div>
+</footer>
+
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="script.js"></script>
+
+</body>
+</html>
