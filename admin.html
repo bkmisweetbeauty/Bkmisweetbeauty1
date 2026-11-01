@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BKMI-Sweetbeauty Admin Login</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+  <main class="admin-login">
+    <h2>BKMI-Sweetbeauty</h2>
+    <h3>Administrator Login</h3>
+    <p>Sign in to access the school management dashboard.</p>
+
+    <form id="adminLoginForm">
+      <label for="email">Admin Email</label>
+      <input
+        type="email"
+        id="email"
+        placeholder="Enter admin email"
+        required
+      >
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        placeholder="Enter password"
+        required
+      >
+
+      <button type="submit">Sign In</button>
+      <p id="loginMessage"></p>
+    </form>
+  </main>
+
+  <script>
+    const SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
+    const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
+
+    const supabaseClient = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_PUBLISHABLE_KEY
+    );
+
+    document.getElementById("adminLoginForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+
+      const message = document.getElementById("loginMessage");
+      const button = this.querySelector("button");
+
+      message.textContent = "Signing in...";
+      button.disabled = true;
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+          email,
+          password
+        });
+
+        if (error) throw error;
+
+        const { data: admin, error: adminError } = await supabaseClient
+          .from("AdminUsers")
+          .select("role")
+          .eq("user_id", data.user.id)
+          .single();
+
+        if (adminError || !admin || admin.role !== "admin") {
+          await supabaseClient.auth.signOut();
+          throw new Error("You are not authorised as a BKMI administrator.");
+        }
+
+        window.location.href = "dashboard.html";
+
+      } catch (error) {
+        message.textContent = error.message;
+      } finally {
+        button.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>
