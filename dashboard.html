@@ -94,7 +94,8 @@ Manage course names, descriptions, durations, regular fees, early-bird fees and 
 <div>
 <label>Upload Course Flyer</label>
 <input id="flyerFile" type="file" accept="image/*">
-<p class="small">Choose a JPG, PNG or WebP flyer image.</p>
+<p class="small">Choose a JPG, PNG or WebP flyer image.</p> 
+  <input type="hidden" id="flyerUrl">
 </div>
 </div>
 
@@ -333,7 +334,36 @@ document.getElementById("courseForm").addEventListener("submit", async function(
   event.preventDefault();
 
   const id = document.getElementById("courseId").value;
+const flyerFile = document.getElementById("flyerFile").files[0];
 
+let flyerUrl = document.getElementById("flyerUrl").value.trim() || null;
+
+if (flyerFile) {
+  if (flyerFile.size > 5 * 1024 * 1024) {
+    alert("Flyer image must not exceed 5MB.");
+    return;
+  }
+
+  const fileName = Date.now() + "-" +
+    flyerFile.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+
+  const { data: uploadData, error: uploadError } = await db
+    .storage
+    .from("course-flyers")
+    .upload(fileName, flyerFile);
+
+  if (uploadError) {
+    alert("Flyer upload failed: " + uploadError.message);
+    return;
+  }
+
+  const { data: publicData } = db
+    .storage
+    .from("course-flyers")
+    .getPublicUrl(uploadData.path);
+
+  flyerUrl = publicData.publicUrl;
+}
   const course = {
     Course_Name: document.getElementById("courseName").value.trim(),
     Description: document.getElementById("courseDescription").value.trim(),
@@ -342,7 +372,7 @@ document.getElementById("courseForm").addEventListener("submit", async function(
     Early_Bird_Fee: document.getElementById("earlyBirdFee").value === ""
       ? null
       : Number(document.getElementById("earlyBirdFee").value),
-    Course_Flyer_URL: document.getElementById("flyerUrl").value.trim() || null,
+    Course_Flyer_URL: flyerUrl,
     Is_active: document.getElementById("courseActive").value === "true"
   };
 
