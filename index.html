@@ -115,7 +115,48 @@
       font-size: 14px;
       line-height: 1.6;
     }
+/* STUDENT PHOTO ENLARGEMENT */
+.gallery-image {
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
 
+.gallery-image:hover {
+  transform: scale(1.03);
+}
+
+.gallery-lightbox {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.92);
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.gallery-lightbox.active {
+  display: flex;
+}
+
+.gallery-lightbox img {
+  max-width: 95%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.gallery-lightbox-close {
+  position: absolute;
+  top: 15px;
+  right: 22px;
+  color: white;
+  font-size: 38px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
     .gallery-loading,
     .gallery-empty {
       text-align: center;
@@ -463,7 +504,45 @@ document.getElementById("year").textContent = new Date().getFullYear();
 loadPublicCourses();
 loadPublicGallery();
 </script>
+<!-- STUDENT PHOTO ENLARGEMENT WINDOW -->
+<div class="gallery-lightbox" id="galleryLightbox">
+  <button class="gallery-lightbox-close" id="closeGalleryLightbox" aria-label="Close photo">&times;</button>
+  <img id="lightboxImage" src="" alt="Enlarged student photograph">
+</div>
 
+<script>
+const galleryLightbox = document.getElementById("galleryLightbox");
+const lightboxImage = document.getElementById("lightboxImage");
+
+document.getElementById("publicGallery").addEventListener("click", function(event) {
+  const clickedImage = event.target.closest(".gallery-image");
+
+  if (!clickedImage) return;
+
+  lightboxImage.src = clickedImage.src;
+  lightboxImage.alt = clickedImage.alt;
+  galleryLightbox.classList.add("active");
+});
+
+function closeGalleryLightbox() {
+  galleryLightbox.classList.remove("active");
+  lightboxImage.src = "";
+}
+
+document.getElementById("closeGalleryLightbox").addEventListener("click", closeGalleryLightbox);
+
+galleryLightbox.addEventListener("click", function(event) {
+  if (event.target === galleryLightbox) {
+    closeGalleryLightbox();
+  }
+});
+
+document.addEventListener("keydown", function(event) {
+  if (event.key === "Escape") {
+    closeGalleryLightbox();
+  }
+});
+</script>
 <script src="script.js"></script>
 
 </body>
