@@ -8,7 +8,80 @@
   <meta name="description" content="BKMI-Sweetbeauty Cosmetology School, Yaba Lagos. Professional practical beauty training.">
   <title>BKMI-Sweetbeauty Cosmetology School</title>
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    .course-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 22px;
+      margin-top: 30px;
+    }
+
+    .course-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 14px rgba(0,0,0,.08);
+    }
+
+    .course-flyer {
+      width: 100%;
+      height: 230px;
+      object-fit: cover;
+      display: block;
+      background: #f1e8f6;
+    }
+
+    .course-content {
+      padding: 20px;
+    }
+
+    .course-content h3 {
+      color: #54206f;
+      margin-top: 0;
+    }
+
+    .course-price {
+      color: #54206f;
+      font-weight: bold;
+    }
+
+    .early-price {
+      color: #168348;
+      font-weight: bold;
+    }
+
+    .course-apply {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 11px 16px;
+      background: #54206f;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+
+    .course-loading {
+      text-align: center;
+      padding: 25px;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+    }
+
+    .gallery-placeholder {
+      min-height: 130px;
+      background: #f1e8f6;
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+    }
+  </style>
 </head>
+
 <body>
 
 <header class="site-header">
@@ -76,135 +149,20 @@
     </div>
   </div>
 </section>
-</main>
-</body>
-</html>
 
-<!-- COURSES SECTION -->
+<!-- LIVE COURSES FROM SUPABASE -->
 <section class="section courses-section" id="courses">
   <div class="container">
     <p class="eyebrow">OUR TRAINING PROGRAMMES</p>
     <h2>Courses Offered</h2>
     <p>Choose a professional beauty course and begin building your future.</p>
 
-    <div class="course-grid">
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Cosmetology Course 1</h3>
-          <p>Foundational professional beauty training with practical learning across selected cosmetology skills and techniques.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Cosmetology Course 2</h3>
-          <p>Further professional beauty training designed to develop practical competence in cosmetology services.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Diploma in Hairdressing</h3>
-          <p>Professional hairdressing training covering hair care, styling, treatments and salon techniques.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Makeup &amp; Gele Artistry</h3>
-          <p>Learn professional makeup application, skin preparation, beauty enhancement and gele styling.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Nail Technology</h3>
-          <p>Practical nail training covering manicures, nail extensions, gel systems, nail art and professional finishing.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Professional Braids Course</h3>
-          <p>Learn knotless braids, stitch braids, feed-in braids, Ghana weaving, cornrows and professional finishing.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Professional Wig Training</h3>
-          <p>Learn wig construction, customization, styling, frontal installation and professional wig finishing.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Semi-Permanent Brows and Eyelashes</h3>
-          <p>Learn brow enhancement, microblading, microshading, combination brows and professional lash extension techniques.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Facials &amp; Aesthetic Therapy</h3>
-          <p>Learn facial treatments, skin preparation, skincare procedures and professional client care.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
-      <article class="course-card">
-        <div class="course-content">
-          <h3>Barbering &amp; Natural Dreadlocks</h3>
-          <p>Develop practical skills in barbering, haircuts, natural dreadlock creation, maintenance and styling.</p>
-          <p><strong>Duration:</strong> To be confirmed</p>
-          <p><strong>Regular fee:</strong> To be confirmed</p>
-          <p><strong>Early bird fee:</strong> To be confirmed</p>
-          <a href="#admissions">Apply for this course →</a>
-        </div>
-      </article>
-
+    <div id="publicCourses" class="course-grid">
+      <p class="course-loading">Loading our courses...</p>
     </div>
   </div>
 </section>
-<!-- END COURSES SECTION -->
 
-<!-- STUDENT GALLERY -->
 <section class="section gallery-section" id="gallery">
   <div class="container">
     <p class="eyebrow">OUR STUDENTS, OUR PRIDE</p>
@@ -212,37 +170,22 @@
     <p>Explore practical work, student achievements and beautiful results from BKMI-Sweetbeauty.</p>
 
     <div class="gallery-grid">
-      <div class="gallery-placeholder">
-        <p>Student Work 1</p>
-      </div>
-      <div class="gallery-placeholder">
-        <p>Student Work 2</p>
-      </div>
-      <div class="gallery-placeholder">
-        <p>Student Work 3</p>
-      </div>
-      <div class="gallery-placeholder">
-        <p>Student Work 4</p>
-      </div>
+      <div class="gallery-placeholder"><p>Student Work 1</p></div>
+      <div class="gallery-placeholder"><p>Student Work 2</p></div>
+      <div class="gallery-placeholder"><p>Student Work 3</p></div>
+      <div class="gallery-placeholder"><p>Student Work 4</p></div>
     </div>
 
     <p class="small-note">More student photographs and practical work will be added to this gallery.</p>
   </div>
 </section>
 
-
-<!-- HOSTEL -->
 <section class="section hostel-section" id="hostel">
   <div class="container">
     <p class="eyebrow">ACCOMMODATION</p>
     <h2>BKMI Sweet Homes</h2>
     <h3>Home Away from Home</h3>
-
-    <p>
-      Looking for accommodation while studying at BKMI-Sweetbeauty?
-      BKMI Sweet Homes provides accommodation for students and workers
-      within the Yaba axis.
-    </p>
+    <p>Looking for accommodation while studying at BKMI-Sweetbeauty? BKMI Sweet Homes provides accommodation for students and workers within the Yaba axis.</p>
 
     <div class="hostel-details">
       <p><strong>Location:</strong> Yaba axis, Lagos</p>
@@ -255,8 +198,6 @@
   </div>
 </section>
 
-
-<!-- ADMISSIONS -->
 <section class="section admissions-section" id="admissions">
   <div class="container">
     <p class="eyebrow">TAKE THE FIRST STEP</p>
@@ -278,16 +219,16 @@
         <label for="course">Select Your Course *</label>
         <select id="course" name="course" required>
           <option value="">Choose a course</option>
-          <option>Cosmetology Course 1</option>
-          <option>Cosmetology Course 2</option>
-          <option>Diploma in Hairdressing</option>
           <option>Makeup &amp; Gele Artistry</option>
+          <option>Braiding</option>
+          <option>Cosmetology Course 1</option>
+          <option>Barbering and Natural Dreadlocks</option>
+          <option>Semi-Permanent Brows and Eyelash</option>
           <option>Nail Technology</option>
-          <option>Professional Braids Course</option>
           <option>Professional Wig Training</option>
-          <option>Semi-Permanent Brows and Eyelashes</option>
-          <option>Facials &amp; Aesthetic Therapy</option>
-          <option>Barbering &amp; Natural Dreadlocks</option>
+          <option>Hairdressing</option>
+          <option>Cosmetology Course 2</option>
+          <option>Facials and Aesthetics Therapy</option>
         </select>
 
         <label for="message">Message (Optional)</label>
@@ -297,14 +238,11 @@
 
         <p class="form-note">Our admissions team will contact you after receiving your application.</p>
         <p class="form-error" id="formError" role="status"></p>
-
       </form>
     </div>
   </div>
 </section>
 
-
-<!-- CONTACT -->
 <section class="section contact-section" id="contact">
   <div class="container">
     <p class="eyebrow">GET IN TOUCH</p>
@@ -325,8 +263,6 @@
 
 </main>
 
-
-<!-- FOOTER -->
 <footer class="site-footer">
   <div class="container">
     <h3>BKMI-SWEETBEAUTY</h3>
@@ -336,8 +272,98 @@
   </div>
 </footer>
 
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const PUBLIC_SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
+const PUBLIC_SUPABASE_KEY = "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
+
+const publicDb = window.supabase.createClient(
+  PUBLIC_SUPABASE_URL,
+  PUBLIC_SUPABASE_KEY
+);
+
+function escapeCourseText(value) {
+  return String(value ?? "").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[character]);
+}
+
+function formatCourseFee(value) {
+  if (value === null || value === undefined || value === "") {
+    return "Contact us";
+  }
+  return "₦" + Number(value).toLocaleString("en-NG");
+}
+
+async function loadPublicCourses() {
+  const container = document.getElementById("publicCourses");
+
+  const { data, error } = await publicDb
+    .from("Courses")
+    .select("id, Course_Name, Description, Duration, Course_fee, Early_Bird_Fee, Course_Flyer_URL, Is_active")
+    .eq("Is_active", true)
+    .order("Course_Name", { ascending: true });
+
+  if (error) {
+    console.error("Course loading error:", error);
+    container.innerHTML = "<p>Our course information is temporarily unavailable. Please contact us on WhatsApp for details.</p>";
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>New course information will be available shortly. Please contact us for enquiries.</p>";
+    return;
+  }
+
+  container.innerHTML = data.map(course => {
+    const flyer = course.Course_Flyer_URL
+      ? `<img class="course-flyer" src="${escapeCourseText(course.Course_Flyer_URL)}" alt="${escapeCourseText(course.Course_Name)} course flyer" loading="lazy">`
+      : "";
+
+    const description = escapeCourseText(course.Description || "Professional practical beauty training.");
+    const name = escapeCourseText(course.Course_Name);
+    const duration = escapeCourseText(course.Duration || "Contact us");
+
+    return `
+      <article class="course-card">
+        ${flyer}
+        <div class="course-content">
+          <h3>${name}</h3>
+          <p>${description}</p>
+          <p><strong>Duration:</strong> ${duration}</p>
+          <p class="course-price"><strong>Regular fee:</strong> ${formatCourseFee(course.Course_fee)}</p>
+          <p class="early-price"><strong>Early bird fee:</strong> ${formatCourseFee(course.Early_Bird_Fee)}</p>
+          <a class="course-apply" href="#admissions" data-course-name="${name}">Apply for this course</a>
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  container.querySelectorAll(".course-apply").forEach(link => {
+    link.addEventListener("click", function() {
+      const courseSelect = document.getElementById("course");
+      const courseName = this.dataset.courseName;
+
+      const matchingOption = Array.from(courseSelect.options).find(option =>
+        option.text.trim().toLowerCase() === courseName.trim().toLowerCase()
+      );
+
+      if (matchingOption) {
+        courseSelect.value = matchingOption.value;
+      }
+    });
+  });
+}
+
+document.getElementById("year").textContent = new Date().getFullYear();
+
+loadPublicCourses();
+</script>
+
 <script src="script.js"></script>
 
 </body>
