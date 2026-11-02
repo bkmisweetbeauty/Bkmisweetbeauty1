@@ -51,16 +51,20 @@
       font-weight: bold;
     }
 
-    .course-apply {
-      display: inline-block;
-      margin-top: 12px;
-      padding: 11px 16px;
-      background: #54206f;
-      color: white;
-      text-decoration: none;
-      border-radius: 6px;
-    }
-
+ .course-apply {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 12px 22px;
+  background: #54206f;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  font-size: 15px;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 6px;
+  border: 2px solid #54206f;
+  cursor: pointer;
+}
     .course-loading {
       text-align: center;
       padding: 25px;
@@ -337,7 +341,7 @@ async function loadPublicCourses() {
           <p><strong>Duration:</strong> ${duration}</p>
           <p class="course-price"><strong>Regular fee:</strong> ${formatCourseFee(course.Course_fee)}</p>
           <p class="early-price"><strong>Early bird fee:</strong> ${formatCourseFee(course.Early_Bird_Fee)}</p>
-          <a class="course-apply" href="#admissions" data-course-name="${name}">Apply for this course</a>
+          <a class="course-apply" href="#admissions" data-course-name="${name}">ENROL NOW</a>
         </div>
       </article>
     `;
