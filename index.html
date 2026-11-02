@@ -572,7 +572,26 @@ async function loadPublicVideos() {
   }
 
   const videoContainer = document.getElementById("publicVideoGallery");
+const videoFilter = document.createElement("select");
+videoFilter.id = "videoCategoryFilter";
+videoFilter.innerHTML = `
+  <option value="All">All Videos</option>
+  <option value="Student Practical Work">Student Practical Work</option>
+  <option value="Hairdressing">Hairdressing</option>
+  <option value="Braiding">Braiding</option>
+  <option value="Wig Making">Wig Making</option>
+  <option value="Makeup & Gele">Makeup & Gele</option>
+  <option value="Nail Technology">Nail Technology</option>
+  <option value="Barbering">Barbering</option>
+  <option value="Graduation">Graduation</option>
+  <option value="School Activities">School Activities</option>
+  <option value="Student Achievements">Student Achievements</option>
+`;
 
+videoFilter.style.cssText =
+  "padding:12px;width:100%;max-width:350px;margin:15px 0;border:1px solid #54206f;border-radius:8px;font-size:15px;";
+
+videoContainer.parentElement.insertBefore(videoFilter, videoContainer);
   const { data, error } = await publicDb
     .from("StudentVideos")
     .select("id, title, category, description, youtube_url, created_at")
@@ -589,7 +608,12 @@ async function loadPublicVideos() {
     return;
   }
 
-  videoContainer.innerHTML = data.map(video => {
+  function renderVideos(selectedCategory = "All") {
+  const filteredVideos = selectedCategory === "All"
+    ? data
+    : data.filter(video => video.category === selectedCategory);
+
+  videoContainer.innerHTML = filteredVideos.map(video => {
     let videoId = "";
 
     try {
@@ -642,6 +666,13 @@ async function loadPublicVideos() {
       </a>
     `;
   }).join("");
+      }
+
+  videoFilter.addEventListener("change", function() {
+    renderVideos(videoFilter.value);
+  });
+
+  renderVideos();
 }
 document.getElementById("year").textContent = new Date().getFullYear();
 
