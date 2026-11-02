@@ -51,37 +51,76 @@
       font-weight: bold;
     }
 
- .course-apply {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 12px 22px;
-  background: #54206f;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  font-size: 15px;
-  font-weight: bold;
-  text-align: center;
-  border-radius: 6px;
-  border: 2px solid #54206f;
-  cursor: pointer;
-}
+    .course-apply {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 12px 22px;
+      background: #54206f;
+      color: #ffffff !important;
+      text-decoration: none !important;
+      font-size: 15px;
+      font-weight: bold;
+      text-align: center;
+      border-radius: 6px;
+      border: 2px solid #54206f;
+      cursor: pointer;
+    }
+
     .course-loading {
       text-align: center;
       padding: 25px;
     }
 
+    /* STUDENT GALLERY */
     .gallery-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
     }
 
-    .gallery-placeholder {
-      min-height: 130px;
+    .gallery-card {
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 3px 14px rgba(0,0,0,.08);
+    }
+
+    .gallery-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
       background: #f1e8f6;
-      border-radius: 10px;
-      display: grid;
-      place-items: center;
+    }
+
+    .gallery-caption {
+      padding: 15px;
+    }
+
+    .gallery-caption h3 {
+      color: #54206f;
+      font-size: 17px;
+      margin: 0 0 8px;
+    }
+
+    .gallery-category {
+      color: #54206f;
+      font-weight: bold;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .gallery-description {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .gallery-loading,
+    .gallery-empty {
+      text-align: center;
+      padding: 25px;
+      grid-column: 1 / -1;
     }
   </style>
 </head>
@@ -167,20 +206,18 @@
   </div>
 </section>
 
+<!-- LIVE STUDENT GALLERY FROM SUPABASE -->
 <section class="section gallery-section" id="gallery">
   <div class="container">
     <p class="eyebrow">OUR STUDENTS, OUR PRIDE</p>
     <h2>Student Gallery</h2>
     <p>Explore practical work, student achievements and beautiful results from BKMI-Sweetbeauty.</p>
 
-    <div class="gallery-grid">
-      <div class="gallery-placeholder"><p>Student Work 1</p></div>
-      <div class="gallery-placeholder"><p>Student Work 2</p></div>
-      <div class="gallery-placeholder"><p>Student Work 3</p></div>
-      <div class="gallery-placeholder"><p>Student Work 4</p></div>
+    <div id="publicGallery" class="gallery-grid">
+      <p class="gallery-loading">Loading student photographs...</p>
     </div>
 
-    <p class="small-note">More student photographs and practical work will be added to this gallery.</p>
+    <p class="small-note">Celebrating our students, their creativity and their practical achievements.</p>
   </div>
 </section>
 
@@ -277,6 +314,7 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
 const PUBLIC_SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
 const PUBLIC_SUPABASE_KEY = "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
@@ -363,9 +401,67 @@ async function loadPublicCourses() {
   });
 }
 
+/* LOAD STUDENT PHOTOS FROM SUPABASE */
+async function loadPublicGallery() {
+  const container = document.getElementById("publicGallery");
+
+  const { data, error } = await publicDb
+    .from("StudentGallery")
+    .select("id, student_name, category, description, image_url, created_at")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Student gallery loading error:", error);
+    container.innerHTML = `
+      <p class="gallery-empty">
+        Student photographs are temporarily unavailable. Please check back soon.
+      </p>
+    `;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.innerHTML = `
+      <p class="gallery-empty">
+        Our student photographs will be displayed here soon.
+      </p>
+    `;
+    return;
+  }
+
+  container.innerHTML = data.map(photo => {
+    const studentName = photo.student_name
+      ? escapeCourseText(photo.student_name)
+      : "BKMI-Sweetbeauty Student";
+
+    const category = escapeCourseText(photo.category || "Student Work");
+    const description = escapeCourseText(photo.description || "");
+
+    const imageUrl = escapeCourseText(photo.image_url);
+
+    return `
+      <article class="gallery-card">
+        <img
+          class="gallery-image"
+          src="${imageUrl}"
+          alt="${studentName} - ${category}"
+          loading="lazy"
+        >
+
+        <div class="gallery-caption">
+          <h3>${studentName}</h3>
+          <p class="gallery-category">${category}</p>
+          ${description ? `<p class="gallery-description">${description}</p>` : ""}
+        </div>
+      </article>
+    `;
+  }).join("");
+}
+
 document.getElementById("year").textContent = new Date().getFullYear();
 
 loadPublicCourses();
+loadPublicGallery();
 </script>
 
 <script src="script.js"></script>
