@@ -88,6 +88,36 @@ button:disabled {
   margin: 10px 0;
 }
 
+.gallery-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.gallery-admin-card {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+  background: white;
+}
+
+.gallery-admin-card img {
+  width: 100%;
+  height: 210px;
+  object-fit: cover;
+  display: block;
+}
+
+.gallery-admin-details {
+  padding: 12px;
+}
+
+.gallery-admin-details h3 {
+  color: #54206f;
+  margin-top: 0;
+}
+
 </style>
 </head>
 
@@ -103,10 +133,14 @@ button:disabled {
 
 <main id="dashboardContent" class="hidden">
 
+<!-- APPLICATIONS -->
+
 <section>
   <h2>Applications</h2>
   <div id="applicationsList">Loading applications...</div>
 </section>
+
+<!-- ADD AND EDIT COURSES -->
 
 <section>
   <h2 id="courseFormTitle">Add New Course</h2>
@@ -132,7 +166,7 @@ button:disabled {
 
     <label>Upload Course Flyer</label>
     <input id="flyerFile" type="file" accept="image/jpeg,image/png,image/webp">
-    <p class="small">Choose a JPG, PNG or WebP image. Maximum 5MB.</p>
+    <p class="small">JPG, PNG or WebP. Maximum 5MB.</p>
 
     <label>Course Status</label>
     <select id="courseActive">
@@ -145,9 +179,75 @@ button:disabled {
   </form>
 </section>
 
+<!-- MANAGE COURSES -->
+
 <section>
   <h2>Manage Courses</h2>
   <div id="coursesList">Loading courses...</div>
+</section>
+
+<!-- STUDENT GALLERY -->
+
+<section>
+  <h2>Student Gallery Management</h2>
+
+  <p>Upload student photographs and showcase their practical work and achievements.</p>
+
+  <form id="galleryForm">
+
+    <label>Student Name (Optional)</label>
+    <input
+      id="galleryStudentName"
+      type="text"
+      placeholder="Enter student's name"
+    >
+
+    <label>Course / Category *</label>
+    <select id="galleryCategory" required>
+      <option value="">Select category</option>
+      <option value="Cosmetology">Cosmetology</option>
+      <option value="Hairdressing">Hairdressing</option>
+      <option value="Braiding">Braiding</option>
+      <option value="Wig Making">Wig Making</option>
+      <option value="Makeup & Gele">Makeup & Gele</option>
+      <option value="Nail Technology">Nail Technology</option>
+      <option value="Barbering">Barbering</option>
+      <option value="Semi-Permanent Brows & Lashes">Semi-Permanent Brows & Lashes</option>
+      <option value="Facials & Aesthetics">Facials & Aesthetics</option>
+      <option value="Graduation">Graduation</option>
+      <option value="Student Practical Work">Student Practical Work</option>
+    </select>
+
+    <label>Picture Description</label>
+    <textarea
+      id="galleryDescription"
+      rows="3"
+      placeholder="Describe the student's work or achievement"
+    ></textarea>
+
+    <label>Upload Student Picture *</label>
+    <input
+      id="galleryImage"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      required
+    >
+
+    <p class="small">JPG, PNG or WebP images only. Maximum 5MB per picture.</p>
+
+    <button type="submit" id="uploadGalleryButton">Upload Student Picture</button>
+
+  </form>
+
+  <div id="galleryMessage" class="status">
+    Your uploaded student pictures will appear here.
+  </div>
+
+  <h3>Uploaded Student Pictures</h3>
+  <div id="studentGalleryList" class="gallery-admin-grid">
+    Loading student gallery...
+  </div>
+
 </section>
 
 </main>
@@ -173,6 +273,8 @@ function escapeHTML(value) {
     "'": "&#039;"
   })[character]);
 }
+
+// ADMIN ACCESS
 
 async function checkAdmin() {
   const { data: { session }, error } = await db.auth.getSession();
@@ -200,12 +302,15 @@ async function checkAdmin() {
 
   await loadApplications();
   await loadCourses();
+  await loadStudentGallery();
 }
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
   await db.auth.signOut();
   window.location.href = "admin.html";
 });
+
+// APPLICATION MANAGEMENT
 
 async function loadApplications() {
   const container = document.getElementById("applicationsList");
@@ -233,6 +338,7 @@ async function loadApplications() {
       <p>Email: ${escapeHTML(app.Email || app.email || "")}</p>
       <p>Course: ${escapeHTML(app.Course || app.course || "")}</p>
       <p>Status: ${escapeHTML(app.Status || app.status || "Pending")}</p>
+
       <div class="actions">
         <button class="application-action" data-id="${escapeHTML(app.id)}" data-status="Approved">Approve</button>
         <button class="warning application-action" data-id="${escapeHTML(app.id)}" data-status="Rejected">Reject</button>
@@ -285,6 +391,8 @@ async function deleteApplication(id) {
   await loadApplications();
 }
 
+// COURSE MANAGEMENT
+
 async function loadCourses() {
   const container = document.getElementById("coursesList");
   container.textContent = "Loading courses...";
@@ -312,7 +420,11 @@ async function loadCourses() {
       <p><b>Regular Fee:</b> ₦${Number(course.Course_fee || 0).toLocaleString("en-NG")}</p>
       <p><b>Early-Bird Fee:</b> ₦${Number(course.Early_Bird_Fee || 0).toLocaleString("en-NG")}</p>
       <p><b>Status:</b> ${course.Is_active ? "Active" : "Inactive"}</p>
-      ${course.Course_Flyer_URL ? `<p><a href="${escapeHTML(course.Course_Flyer_URL)}" target="_blank" rel="noopener">View Flyer</a></p>` : ""}
+
+      ${course.Course_Flyer_URL
+        ? `<p><a href="${escapeHTML(course.Course_Flyer_URL)}" target="_blank" rel="noopener">View Flyer</a></p>`
+        : ""}
+
       <div class="actions">
         <button type="button" class="edit edit-course-btn" data-course-id="${escapeHTML(course.id)}">Edit</button>
         <button type="button" class="warning toggle-course-btn" data-course-id="${escapeHTML(course.id)}" data-active="${!course.Is_active}">
@@ -491,6 +603,176 @@ document.getElementById("courseForm").addEventListener("submit", async function(
     button.disabled = false;
   }
 });
+
+// STUDENT GALLERY MANAGEMENT
+
+async function loadStudentGallery() {
+  const container = document.getElementById("studentGalleryList");
+  container.textContent = "Loading student gallery...";
+
+  const { data, error } = await db
+    .from("StudentGallery")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    container.textContent = "Could not load student gallery: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.textContent = "No student pictures uploaded yet.";
+    return;
+  }
+
+  container.innerHTML = data.map(photo => `
+    <div class="gallery-admin-card">
+      <img
+        src="${escapeHTML(photo.image_url)}"
+        alt="${escapeHTML(photo.category)}"
+        loading="lazy"
+      >
+
+      <div class="gallery-admin-details">
+        <h3>${escapeHTML(photo.student_name || "BKMI Student")}</h3>
+        <p><strong>Category:</strong> ${escapeHTML(photo.category)}</p>
+        <p>${escapeHTML(photo.description || "")}</p>
+
+        <button
+          type="button"
+          class="danger delete-gallery-photo"
+          data-id="${escapeHTML(photo.id)}"
+        >
+          Delete Picture
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".delete-gallery-photo").forEach(button => {
+    button.addEventListener("click", () =>
+      deleteGalleryPhoto(button.dataset.id)
+    );
+  });
+}
+
+document.getElementById("galleryForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const button = document.getElementById("uploadGalleryButton");
+  const status = document.getElementById("galleryMessage");
+  const file = document.getElementById("galleryImage").files[0];
+
+  if (!file) {
+    status.textContent = "Please select a student picture.";
+    return;
+  }
+
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!allowedTypes.includes(file.type)) {
+    status.textContent = "Please upload a JPG, PNG or WebP image.";
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    status.textContent = "Image must not exceed 5MB.";
+    return;
+  }
+
+  button.disabled = true;
+  status.textContent = "Uploading student picture. Please wait...";
+
+  let storagePath = null;
+
+  try {
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "-");
+    storagePath = Date.now() + "-" + safeName;
+
+    const { data: uploadData, error: uploadError } = await db
+      .storage
+      .from("student-gallery")
+      .upload(storagePath, file);
+
+    if (uploadError) {
+      throw new Error("Picture upload failed: " + uploadError.message);
+    }
+
+    const { data: publicData } = db
+      .storage
+      .from("student-gallery")
+      .getPublicUrl(uploadData.path);
+
+    const pictureRecord = {
+      student_name: document.getElementById("galleryStudentName").value.trim() || null,
+      category: document.getElementById("galleryCategory").value,
+      description: document.getElementById("galleryDescription").value.trim() || null,
+      image_url: publicData.publicUrl,
+      storage_path: uploadData.path
+    };
+
+    const { error: insertError } = await db
+      .from("StudentGallery")
+      .insert([pictureRecord]);
+
+    if (insertError) {
+      await db.storage.from("student-gallery").remove([uploadData.path]);
+      throw new Error("Could not save picture details: " + insertError.message);
+    }
+
+    status.textContent = "Student picture uploaded successfully!";
+    document.getElementById("galleryForm").reset();
+
+    await loadStudentGallery();
+
+  } catch (error) {
+    status.textContent = error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
+async function deleteGalleryPhoto(id) {
+  if (!confirm("Are you sure you want to delete this student picture?")) {
+    return;
+  }
+
+  const { data: photo, error: fetchError } = await db
+    .from("StudentGallery")
+    .select("storage_path")
+    .eq("id", id)
+    .single();
+
+  if (fetchError || !photo) {
+    alert("Could not find this picture: " + (fetchError?.message || ""));
+    return;
+  }
+
+  const { error: deleteError } = await db
+    .from("StudentGallery")
+    .delete()
+    .eq("id", id);
+
+  if (deleteError) {
+    alert("Could not delete picture record: " + deleteError.message);
+    return;
+  }
+
+  const { error: storageError } = await db
+    .storage
+    .from("student-gallery")
+    .remove([photo.storage_path]);
+
+  if (storageError) {
+    alert("The gallery record was deleted, but the stored image could not be deleted: " + storageError.message);
+  } else {
+    alert("Student picture deleted successfully.");
+  }
+
+  await loadStudentGallery();
+}
+
+// START DASHBOARD
 
 checkAdmin();
 </script>
