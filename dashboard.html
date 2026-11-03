@@ -397,11 +397,11 @@ async function loadApplications() {
 
   container.innerHTML = data.map(app => `
     <div class="card">
-      <h3>${escapeHTML(app.Full_Name || app.full_name || "Applicant")}</h3>
-      <p>Phone: ${escapeHTML(app.Phone_Number || app.phone || "")}</p>
-      <p>Email: ${escapeHTML(app.Email || app.email || "")}</p>
-      <p>Course: ${escapeHTML(app.Course || app.course || "")}</p>
-      <p>Status: ${escapeHTML(app.Status || app.status || "Pending")}</p>
+      <h3>${escapeHTML(app["Full Name"] || "Applicant")}</h3>
+      <p>Phone: ${escapeHTML(app["Phone Number"] || "")}</p>
+      <p>Email: ${escapeHTML(app.Email || "")}</p>
+      <p>Course: ${escapeHTML(app.Course || "")}</p>
+      <p>Status: ${escapeHTML(app.Status || "Pending")}</p>
 
       <div class="actions">
         <button class="application-action" data-id="${escapeHTML(app.id)}" data-status="Approved">Approve</button>
@@ -423,7 +423,6 @@ async function loadApplications() {
     );
   });
 }
-
 
 
 // COURSE MANAGEMENT
