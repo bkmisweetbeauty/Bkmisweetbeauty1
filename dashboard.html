@@ -178,12 +178,66 @@ button:disabled {
     <button type="button" id="cancelEditButton" class="warning">Clear Form</button>
   </form>
 </section>
-
 <!-- MANAGE COURSES -->
 
 <section>
   <h2>Manage Courses</h2>
   <div id="coursesList">Loading courses...</div>
+</section>
+
+<!-- PAYMENT MANAGEMENT -->
+
+<section>
+  <h2>Payment Management</h2>
+
+  <form id="paymentForm">
+    <label>Student</label>
+    <select id="paymentStudent" required>
+      <option value="">Select Student</option>
+    </select>
+
+    <label>Payment Type</label>
+    <select id="paymentType" required>
+      <option value="">Select Payment Type</option>
+      <option value="Course Fee">Course Fee</option>
+      <option value="Registration Fee">Registration Fee</option>
+      <option value="Admission Fee">Admission Fee</option>
+    </select>
+
+    <label>Amount Received (₦)</label>
+    <input id="paymentAmount" type="number" min="0.01" step="0.01" required>
+
+    <label>Payment Method</label>
+    <select id="paymentMethod" required>
+      <option value="">Select Method</option>
+      <option value="Bank Transfer">Bank Transfer</option>
+      <option value="Cash">Cash</option>
+      <option value="POS">POS</option>
+    </select>
+
+    <label>Payment Reference</label>
+    <input id="paymentReference" type="text">
+
+    <label>Payment Date</label>
+    <input id="paymentDate" type="date" required>
+
+    <label>Payment Status</label>
+    <select id="paymentStatus" required>
+      <option value="Pending">Pending</option>
+      <option value="Confirmed">Confirmed</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+
+    <label>Notes</label>
+    <textarea id="paymentNotes" rows="3"></textarea>
+
+    <button type="submit" id="savePaymentButton">Record Payment</button>
+  </form>
+
+  <div id="paymentMessage"></div>
+
+  <h3>Payment Records</h3>
+  <div id="paymentsList">Loading payments...</div>
 </section>
 
 <!-- STUDENT GALLERY -->
