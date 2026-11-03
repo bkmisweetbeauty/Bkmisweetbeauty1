@@ -416,6 +416,7 @@ async function checkAdmin() {
 
   message.textContent = "Administrator access verified.";
   dashboardContent.classList.remove("hidden");
+  document.getElementById("paymentMessage").textContent = "Admin check passed. Loading dashboard...";
 
     await loadApplications();
   await loadCourses();
