@@ -367,6 +367,8 @@ async function checkAdmin() {
   await loadCourses();
   await loadStudentGallery();
   await loadStudentVideos();
+  await loadPaymentStudents();
+await loadPayments();
 }
 
 document.getElementById("logoutButton").addEventListener("click", async () => {
@@ -538,6 +540,170 @@ async function deleteApplication(id) {
   alert("Application deleted.");
   await loadApplications();
 }
+  
+// PAYMENT MANAGEMENT
+
+async function loadPaymentStudents() {
+  const select = document.getElementById("paymentStudent");
+
+  select.innerHTML = '<option value="">Loading students...</option>';
+
+  const { data, error } = await db
+    .from("Students")
+    .select('id, "Full Name", "Registration Number", Course')
+    .order("Full Name", { ascending: true });
+
+  if (error) {
+    select.innerHTML = '<option value="">Could not load students</option>';
+    document.getElementById("paymentMessage").textContent =
+      "Could not load students: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    select.innerHTML = '<option value="">No students found</option>';
+    return;
+  }
+
+  select.innerHTML = '<option value="">Select student</option>' +
+    data.map(student => `
+      <option value="${escapeHTML(student.id)}">
+        ${escapeHTML(student["Full Name"])} —
+        ${escapeHTML(student["Registration Number"] || "No registration number")}
+      </option>
+    `).join("");
+}
+
+
+async function loadPayments() {
+  const container = document.getElementById("paymentsList");
+
+  container.textContent = "Loading payments...";
+
+  const { data, error } = await db
+    .from("Payment")
+    .select('*, Students("Full Name", "Registration Number", Course)')
+    .order("received_date", { ascending: false });
+
+  if (error) {
+    container.textContent = "Could not load payments: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.textContent = "No payment records yet.";
+    return;
+  }
+
+  container.innerHTML = data.map(payment => `
+    <div class="card">
+      <h3>${escapeHTML(payment.Students?.["Full Name"] || "Student")}</h3>
+      <p>Registration Number: ${escapeHTML(payment.Students?.["Registration Number"] || "")}</p>
+      <p>Course: ${escapeHTML(payment.Students?.Course || "")}</p>
+      <p>Category: ${escapeHTML(payment.payment_type || "")}</p>
+      <p>Amount: ₦${Number(payment.amount || 0).toLocaleString("en-NG")}</p>
+      <p>Method: ${escapeHTML(payment.payment_method || "")}</p>
+      <p>Reference: ${escapeHTML(payment.payment_reference || "N/A")}</p>
+      <p>Date: ${escapeHTML(payment.received_date || "")}</p>
+      <p>Status: <strong>${escapeHTML(payment.payment_status || "Pending")}</strong></p>
+      <p>Notes: ${escapeHTML(payment.notes || "")}</p>
+
+      <div class="actions">
+        ${payment.payment_status !== "Confirmed" ? `
+          <button type="button" class="confirm-payment" data-id="${escapeHTML(payment.id)}">
+            Confirm
+          </button>
+        ` : ""}
+        ${payment.payment_status !== "Rejected" ? `
+          <button type="button" class="warning reject-payment" data-id="${escapeHTML(payment.id)}">
+            Reject
+          </button>
+        ` : ""}
+      </div>
+    </div>
+  `).join("");
+
+  container.querySelectorAll(".confirm-payment").forEach(button => {
+    button.addEventListener("click", () =>
+      updatePaymentStatus(button.dataset.id, "Confirmed")
+    );
+  });
+
+  container.querySelectorAll(".reject-payment").forEach(button => {
+    button.addEventListener("click", () =>
+      updatePaymentStatus(button.dataset.id, "Rejected")
+    );
+  });
+}
+
+
+async function updatePaymentStatus(id, status) {
+  if (!confirm("Change this payment status to " + status + "?")) return;
+
+  const { error } = await db
+    .from("Payment")
+    .update({ payment_status: status })
+    .eq("id", id);
+
+  if (error) {
+    alert("Could not update payment: " + error.message);
+    return;
+  }
+
+  alert("Payment status updated.");
+  await loadPayments();
+}
+
+
+document.getElementById("paymentForm").addEventListener("submit", async function(event) {
+  event.preventDefault();
+
+  const button = document.getElementById("savePaymentButton");
+  const message = document.getElementById("paymentMessage");
+
+  button.disabled = true;
+  message.textContent = "Saving payment...";
+
+  try {
+    const studentId = document.getElementById("paymentStudent").value;
+
+    const payment = {
+      student_uuid: studentId,
+      payment_type: document.getElementById("paymentType").value,
+      amount: Number(document.getElementById("paymentAmount").value),
+      payment_method: document.getElementById("paymentMethod").value,
+      payment_reference: document.getElementById("paymentReference").value.trim() || null,
+      received_date: document.getElementById("paymentDate").value,
+      notes: document.getElementById("paymentNotes").value.trim() || null,
+      payment_status: document.getElementById("paymentStatus").value
+    };
+
+    if (!studentId || !payment.amount || payment.amount <= 0) {
+      message.textContent = "Please select a student and enter a valid amount.";
+      return;
+    }
+
+    const { error } = await db
+      .from("Payment")
+      .insert([payment]);
+
+    if (error) {
+      message.textContent = "Could not record payment: " + error.message;
+      return;
+    }
+
+    message.textContent = "Payment recorded successfully!";
+    document.getElementById("paymentForm").reset();
+
+    await loadPayments();
+
+  } catch (error) {
+    message.textContent = "Something went wrong: " + error.message;
+  } finally {
+    button.disabled = false;
+  }
+});
+
 // COURSE MANAGEMENT
 
 async function loadCourses() {
