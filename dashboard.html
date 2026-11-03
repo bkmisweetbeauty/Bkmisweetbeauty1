@@ -498,7 +498,7 @@ async function updateApplication(id, status) {
     // Update application status
     const { error: updateError } = await db
       .from("Applications")
-      .update({ Status: status })
+      .update({ "Application Status": status })
       .eq("id", id);
 
     if (updateError) {
