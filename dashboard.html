@@ -603,7 +603,7 @@ async function loadPaymentStudents() {
 
   const { data, error } = await db
     .from("Students")
-    .select('id, "Full Name", "Registration Number", Course')
+  .select('*')
     .order("Full Name", { ascending: true });
 
   if (error) {
