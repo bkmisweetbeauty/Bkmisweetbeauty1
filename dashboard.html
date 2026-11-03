@@ -423,8 +423,9 @@ async function checkAdmin() {
 
     await loadApplications();
   await loadCourses();
-  await loadPaymentStudents();
+    await loadPaymentStudents();
   await loadPayments();
+  await loadStudentFeeSummaries();
   await loadStudentGallery();
   await loadStudentVideos();
 }
@@ -1324,6 +1325,49 @@ async function deleteStudentVideo(id) {
 
   alert("Video deleted successfully.");
   await loadStudentVideos();
+}
+  // STUDENT FEE SUMMARY
+
+async function loadStudentFeeSummaries() {
+  const container = document.getElementById("studentFeesList");
+
+  container.textContent = "Loading student fee summaries...";
+
+  const { data, error } = await db
+    .from("Students")
+    .select("*")
+    .order("Full Name", { ascending: true });
+
+  if (error) {
+    container.textContent = "Could not load fee summaries: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    container.textContent = "No student records found.";
+    return;
+  }
+
+  container.innerHTML = data.map(student => `
+    <div class="card">
+      <h3>${escapeHTML(student["Full Name"] || "Student")}</h3>
+
+      <p>Registration Number: ${escapeHTML(student["Registration Number"] || "")}</p>
+      <p>Course: ${escapeHTML(student["Course"] || "")}</p>
+
+      <p>Course Fee: ₦${Number(student["Course Fee"] || 0).toLocaleString("en-NG")}</p>
+      <p>Registration Fee: ₦${Number(student["Registration Fee"] || 0).toLocaleString("en-NG")}</p>
+      <p>Admission Fee: ₦${Number(student["Admission Fee"] || 0).toLocaleString("en-NG")}</p>
+
+      <p><strong>Total Fee: ₦${Number(student["Total Fee"] || 0).toLocaleString("en-NG")}</strong></p>
+
+      <p>Total Paid: ₦${Number(student["Total Paid"] || 0).toLocaleString("en-NG")}</p>
+
+      <p><strong>Outstanding Balance: ₦${Number(student["Outstanding Balance"] || 0).toLocaleString("en-NG")}</strong></p>
+
+      <p>Early-Bird Qualified: ${student["Early-Bird Qualified"] ? "Yes" : "No"}</p>
+    </div>
+  `).join("");
 }
 // START DASHBOARD
 
