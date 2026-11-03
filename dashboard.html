@@ -424,7 +424,120 @@ async function loadApplications() {
   });
 }
 
+// APPROVE OR REJECT APPLICATION
 
+async function updateApplication(id, status) {
+  try {
+    const { data: applicant, error: fetchError } = await db
+      .from("Applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (fetchError) {
+      alert("Could not retrieve application: " + fetchError.message);
+      return;
+    }
+
+    // Create a student record only when an application is approved
+    if (status === "Approved") {
+      const email = (applicant.Email || "").trim();
+      const phone = (applicant["Phone Number"] || "").trim();
+
+      let existingStudent = null;
+
+      if (email) {
+        const { data, error } = await db
+          .from("Students")
+          .select("id")
+          .eq("Email", email)
+          .maybeSingle();
+
+        if (error) {
+          alert("Could not check existing students: " + error.message);
+          return;
+        }
+
+        existingStudent = data;
+      }
+
+      if (!existingStudent && phone) {
+        const { data, error } = await db
+          .from("Students")
+          .select("id")
+          .eq("Phone Number", phone)
+          .maybeSingle();
+
+        if (error) {
+          alert("Could not check existing students: " + error.message);
+          return;
+        }
+
+        existingStudent = data;
+      }
+
+      if (!existingStudent) {
+        const { error: insertError } = await db
+          .from("Students")
+          .insert([{
+            "Full Name": applicant["Full Name"],
+            "Email": email || null,
+            "Phone Number": phone,
+            "Course": applicant.Course,
+            "Enrollment Date": new Date().toISOString().split("T")[0],
+            "student Status": "Pending"
+          }]);
+
+        if (insertError) {
+          alert("Student registration failed: " + insertError.message);
+          return;
+        }
+      }
+    }
+
+    // Update application status
+    const { error: updateError } = await db
+      .from("Applications")
+      .update({ Status: status })
+      .eq("id", id);
+
+    if (updateError) {
+      alert("Could not update application: " + updateError.message);
+      return;
+    }
+
+    alert(
+      status === "Approved"
+        ? "Application approved. Student record created or already exists."
+        : "Application rejected."
+    );
+
+    await loadApplications();
+
+  } catch (error) {
+    alert("Something went wrong: " + error.message);
+  }
+}
+
+
+// DELETE APPLICATION
+
+async function deleteApplication(id) {
+  if (!confirm("Delete this application permanently?")) return;
+
+  const { error } = await db
+    .from("Applications")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    alert("Could not delete application: " + error.message);
+    return;
+  }
+
+  alert("Application deleted.");
+  await loadApplications();
+}
 // COURSE MANAGEMENT
 
 async function loadCourses() {
