@@ -1385,8 +1385,10 @@ async function checkAdmin() {
   message.textContent = "Administrator access verified.";
   dashboardContent.classList.remove("hidden");
 
-  await loadApplications();
+    await loadApplications();
   await loadCourses();
+  await loadPaymentStudents();
+  await loadPayments();
   await loadStudentGallery();
   await loadStudentVideos();
 }
