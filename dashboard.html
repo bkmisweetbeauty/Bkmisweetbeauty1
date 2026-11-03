@@ -424,36 +424,7 @@ async function loadApplications() {
   });
 }
 
-async function updateApplication(id, status) {
-  const { error } = await db
-    .from("Applications")
-    .update({ Status: status })
-    .eq("id", id);
 
-  if (error) {
-    alert("Could not update application: " + error.message);
-    return;
-  }
-
-  alert("Application updated.");
-  await loadApplications();
-}
-
-async function deleteApplication(id) {
-  if (!confirm("Delete this application permanently?")) return;
-
-  const { error } = await db
-    .from("Applications")
-    .delete()
-    .eq("id", id);
-
-  if (error) {
-    alert("Could not delete application: " + error.message);
-    return;
-  }
-
-  await loadApplications();
-}
 
 // COURSE MANAGEMENT
 
