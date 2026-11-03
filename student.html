@@ -9,9 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -27,24 +25,17 @@ header {
   padding: 25px 15px;
 }
 
-header h1 {
-  margin: 0 0 8px;
-  font-size: 25px;
-}
-
-header p {
-  margin: 0;
-}
+header h1 { margin: 0 0 8px; }
 
 .container {
   max-width: 480px;
-  margin: 45px auto;
+  margin: 40px auto;
   padding: 20px;
 }
 
 .card {
   background: white;
-  padding: 28px 22px;
+  padding: 25px 22px;
   border-radius: 14px;
   box-shadow: 0 4px 18px rgba(0,0,0,.08);
 }
@@ -56,7 +47,7 @@ h2 {
 
 label {
   display: block;
-  margin-top: 18px;
+  margin-top: 17px;
   font-weight: bold;
 }
 
@@ -72,19 +63,23 @@ input {
 button {
   width: 100%;
   padding: 14px;
-  margin-top: 22px;
+  margin-top: 20px;
   border: none;
   border-radius: 7px;
   background: #54206f;
   color: white;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: bold;
   cursor: pointer;
 }
 
 button:disabled {
   opacity: .6;
-  cursor: not-allowed;
+}
+
+.switch {
+  background: #eee5f3;
+  color: #54206f;
 }
 
 .message {
@@ -94,15 +89,14 @@ button:disabled {
   line-height: 1.5;
 }
 
-.dashboard {
-  display: none;
-}
+.dashboard { display: none; }
 
 .detail {
   padding: 13px;
   margin-top: 10px;
   background: #f7f3fa;
   border-radius: 7px;
+  overflow-wrap: anywhere;
 }
 
 .detail strong {
@@ -111,9 +105,7 @@ button:disabled {
   margin-bottom: 5px;
 }
 
-.logout {
-  background: #9b2635;
-}
+.logout { background: #9b2635; }
 
 footer {
   text-align: center;
@@ -136,38 +128,63 @@ footer {
 
   <div class="card" id="loginSection">
 
-    <h2>Student Login</h2>
+    <div id="loginFormSection">
+      <h2>Student Login</h2>
 
-    <p style="text-align:center;">
-      Welcome to your BKMI student portal.
-      Sign in to access your student information.
-    </p>
+      <p style="text-align:center;">
+        Welcome back! Sign in to access your student information.
+      </p>
 
-    <form id="loginForm">
+      <form id="loginForm">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" required
+          placeholder="Your registered email">
 
-      <label for="email">Email Address</label>
-      <input
-        type="email"
-        id="email"
-        required
-        placeholder="Enter your registered email"
-      >
+        <label>Password</label>
+        <input type="password" id="loginPassword" required
+          placeholder="Your password">
 
-      <label for="password">Password</label>
-      <input
-        type="password"
-        id="password"
-        required
-        placeholder="Enter your password"
-      >
+        <button type="submit" id="loginButton">SIGN IN</button>
+      </form>
 
-      <button type="submit" id="loginButton">
-        SIGN IN
+      <button class="switch" id="showSignup">
+        CREATE STUDENT ACCOUNT
       </button>
+    </div>
 
-    </form>
+    <div id="signupFormSection" style="display:none;">
+      <h2>Create Student Account</h2>
 
-    <div class="message" id="loginMessage"></div>
+      <p style="text-align:center;">
+        Use the same email address you submitted with your BKMI application.
+      </p>
+
+      <form id="signupForm">
+
+        <label>Email Address</label>
+        <input type="email" id="signupEmail" required
+          placeholder="Your registered application email">
+
+        <label>Create Password</label>
+        <input type="password" id="signupPassword"
+          minlength="8" required placeholder="At least 8 characters">
+
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword"
+          minlength="8" required placeholder="Confirm your password">
+
+        <button type="submit" id="signupButton">
+          CREATE ACCOUNT
+        </button>
+
+      </form>
+
+      <button class="switch" id="showLogin">
+        BACK TO STUDENT LOGIN
+      </button>
+    </div>
+
+    <div class="message" id="portalMessage"></div>
 
   </div>
 
@@ -215,9 +232,7 @@ footer {
       <span id="studentStatus">—</span>
     </div>
 
-    <button class="logout" onclick="logoutStudent()">
-      LOG OUT
-    </button>
+    <button class="logout" id="logoutButton">LOG OUT</button>
 
   </div>
 
@@ -230,7 +245,8 @@ footer {
 
 
 <script>
-const SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
+const SUPABASE_URL =
+"https://ahercmxxwwbeobywyudv.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
 "sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
@@ -240,12 +256,26 @@ const db = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
 
-
 function showMessage(message, color = "#b3261e") {
-  const box = document.getElementById("loginMessage");
+  const box = document.getElementById("portalMessage");
   box.textContent = message;
   box.style.color = color;
 }
+
+function showLogin() {
+  document.getElementById("loginFormSection").style.display = "block";
+  document.getElementById("signupFormSection").style.display = "none";
+  showMessage("");
+}
+
+function showSignup() {
+  document.getElementById("loginFormSection").style.display = "none";
+  document.getElementById("signupFormSection").style.display = "block";
+  showMessage("");
+}
+
+document.getElementById("showSignup").addEventListener("click", showSignup);
+document.getElementById("showLogin").addEventListener("click", showLogin);
 
 
 async function loadStudentProfile(user) {
@@ -257,13 +287,14 @@ async function loadStudentProfile(user) {
     .maybeSingle();
 
   if (error) {
-    showMessage("Unable to load your student profile: " + error.message);
+    showMessage("Unable to load profile: " + error.message);
+    await db.auth.signOut();
     return;
   }
 
   if (!data) {
     showMessage(
-      "Your login is active, but your student profile has not been linked yet. Please contact the school administrator."
+      "Your account is not yet linked to a student registration. Please contact BKMI administration using your application email."
     );
 
     await db.auth.signOut();
@@ -299,6 +330,76 @@ async function loadStudentProfile(user) {
 }
 
 
+// STUDENT ACCOUNT CREATION
+
+document.getElementById("signupForm").addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    const button = document.getElementById("signupButton");
+
+    const email = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value;
+    const confirmation = document.getElementById("confirmPassword").value;
+
+    if (password.length < 8) {
+      showMessage("Password must contain at least 8 characters.");
+      return;
+    }
+
+    if (password !== confirmation) {
+      showMessage("Your passwords do not match.");
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "CREATING ACCOUNT...";
+
+    showMessage("");
+
+    try {
+      const { data, error } = await db.auth.signUp({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        showMessage("Account creation failed: " + error.message);
+      } else if (data.session) {
+        showMessage(
+          "Account created. Checking your student registration...",
+          "#247a38"
+        );
+
+        await loadStudentProfile(data.user);
+      } else {
+        showMessage(
+          "Account created! Please check your email and verify your address before logging in.",
+          "#247a38"
+        );
+
+        document.getElementById("signupForm").reset();
+        showLogin();
+        showMessage(
+          "Account created! Check your email for the verification link.",
+          "#247a38"
+        );
+      }
+
+    } catch (error) {
+      showMessage("Something went wrong: " + error.message);
+    }
+
+    button.disabled = false;
+    button.textContent = "CREATE ACCOUNT";
+  }
+);
+
+
+// STUDENT LOGIN
+
 document.getElementById("loginForm").addEventListener(
   "submit",
   async function(event) {
@@ -306,27 +407,30 @@ document.getElementById("loginForm").addEventListener(
     event.preventDefault();
 
     const button = document.getElementById("loginButton");
+
     button.disabled = true;
     button.textContent = "SIGNING IN...";
 
     showMessage("");
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
+    try {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
 
-    const { data, error } = await db.auth.signInWithPassword({
-      email,
-      password
-    });
+      const { data, error } = await db.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
 
-    if (error) {
-      showMessage("Login failed: " + error.message);
-      button.disabled = false;
-      button.textContent = "SIGN IN";
-      return;
+      if (error) {
+        showMessage("Login failed: " + error.message);
+      } else {
+        await loadStudentProfile(data.user);
+      }
+
+    } catch (error) {
+      showMessage("Something went wrong: " + error.message);
     }
-
-    await loadStudentProfile(data.user);
 
     button.disabled = false;
     button.textContent = "SIGN IN";
@@ -334,27 +438,38 @@ document.getElementById("loginForm").addEventListener(
 );
 
 
-async function logoutStudent() {
+// STUDENT LOGOUT
 
-  await db.auth.signOut();
+document.getElementById("logoutButton").addEventListener(
+  "click",
+  async function() {
 
-  document.getElementById("studentDashboard").style.display = "none";
-  document.getElementById("loginSection").style.display = "block";
+    await db.auth.signOut();
 
-  document.getElementById("loginForm").reset();
-  showMessage("");
+    document.getElementById("studentDashboard").style.display = "none";
+    document.getElementById("loginSection").style.display = "block";
 
-}
+    document.getElementById("loginForm").reset();
 
+    showLogin();
+  }
+);
+
+
+// CHECK EXISTING LOGIN SESSION
 
 async function checkExistingSession() {
 
-  const { data } = await db.auth.getSession();
+  const { data, error } = await db.auth.getSession();
+
+  if (error) {
+    showMessage("Unable to check login session.");
+    return;
+  }
 
   if (data.session) {
     await loadStudentProfile(data.session.user);
   }
-
 }
 
 checkExistingSession();
