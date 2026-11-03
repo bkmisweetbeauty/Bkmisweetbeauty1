@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#54206f">
+<title>BKMI Student Portal</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f7f3fa;
+  color: #333;
+}
+
+header {
+  background: #54206f;
+  color: white;
+  text-align: center;
+  padding: 25px 15px;
+}
+
+header h1 {
+  margin: 0 0 8px;
+  font-size: 25px;
+}
+
+header p {
+  margin: 0;
+}
+
+.container {
+  max-width: 480px;
+  margin: 45px auto;
+  padding: 20px;
+}
+
+.card {
+  background: white;
+  padding: 28px 22px;
+  border-radius: 14px;
+  box-shadow: 0 4px 18px rgba(0,0,0,.08);
+}
+
+h2 {
+  color: #54206f;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 18px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 13px;
+  margin-top: 7px;
+  border: 1px solid #ccc;
+  border-radius: 7px;
+  font-size: 16px;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 22px;
+  border: none;
+  border-radius: 7px;
+  background: #54206f;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .6;
+  cursor: not-allowed;
+}
+
+.message {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.dashboard {
+  display: none;
+}
+
+.detail {
+  padding: 13px;
+  margin-top: 10px;
+  background: #f7f3fa;
+  border-radius: 7px;
+}
+
+.detail strong {
+  display: block;
+  color: #54206f;
+  margin-bottom: 5px;
+}
+
+.logout {
+  background: #9b2635;
+}
+
+footer {
+  text-align: center;
+  padding: 25px 10px;
+  color: #666;
+  font-size: 13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>BKMI-SWEETBEAUTY</h1>
+  <p>Cosmetology School Student Portal</p>
+  <p>Get Prim & Proper with Us 💜</p>
+</header>
+
+<div class="container">
+
+  <div class="card" id="loginSection">
+
+    <h2>Student Login</h2>
+
+    <p style="text-align:center;">
+      Welcome to your BKMI student portal.
+      Sign in to access your student information.
+    </p>
+
+    <form id="loginForm">
+
+      <label for="email">Email Address</label>
+      <input
+        type="email"
+        id="email"
+        required
+        placeholder="Enter your registered email"
+      >
+
+      <label for="password">Password</label>
+      <input
+        type="password"
+        id="password"
+        required
+        placeholder="Enter your password"
+      >
+
+      <button type="submit" id="loginButton">
+        SIGN IN
+      </button>
+
+    </form>
+
+    <div class="message" id="loginMessage"></div>
+
+  </div>
+
+
+  <div class="card dashboard" id="studentDashboard">
+
+    <h2>Welcome, <span id="studentName"></span></h2>
+
+    <p style="text-align:center;">
+      Your BKMI student information
+    </p>
+
+    <div class="detail">
+      <strong>Registration Number</strong>
+      <span id="registrationNumber">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Full Name</strong>
+      <span id="fullName">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Email Address</strong>
+      <span id="studentEmail">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Phone Number</strong>
+      <span id="phoneNumber">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Enrolled Course</strong>
+      <span id="courseName">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Enrollment Date</strong>
+      <span id="enrollmentDate">—</span>
+    </div>
+
+    <div class="detail">
+      <strong>Student Status</strong>
+      <span id="studentStatus">—</span>
+    </div>
+
+    <button class="logout" onclick="logoutStudent()">
+      LOG OUT
+    </button>
+
+  </div>
+
+</div>
+
+<footer>
+  BKMI-Sweetbeauty Cosmetology School<br>
+  37, Old Yaba Road, by Adekunle Bus Stop, Yaba, Lagos.
+</footer>
+
+
+<script>
+const SUPABASE_URL = "https://ahercmxxwwbeobywyudv.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_L0hGKk2ACWTVsTFrsfCvMQ_kK-nHXa1";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+function showMessage(message, color = "#b3261e") {
+  const box = document.getElementById("loginMessage");
+  box.textContent = message;
+  box.style.color = color;
+}
+
+
+async function loadStudentProfile(user) {
+
+  const { data, error } = await db
+    .from("Students")
+    .select("*")
+    .eq("auth_user_id", user.id)
+    .maybeSingle();
+
+  if (error) {
+    showMessage("Unable to load your student profile: " + error.message);
+    return;
+  }
+
+  if (!data) {
+    showMessage(
+      "Your login is active, but your student profile has not been linked yet. Please contact the school administrator."
+    );
+
+    await db.auth.signOut();
+    return;
+  }
+
+  document.getElementById("studentName").textContent =
+    data["Full Name"] || "Student";
+
+  document.getElementById("registrationNumber").textContent =
+    data["Registration Number"] || "Pending";
+
+  document.getElementById("fullName").textContent =
+    data["Full Name"] || "—";
+
+  document.getElementById("studentEmail").textContent =
+    data.Email || "—";
+
+  document.getElementById("phoneNumber").textContent =
+    data["Phone Number"] || "—";
+
+  document.getElementById("courseName").textContent =
+    data.Course || "—";
+
+  document.getElementById("enrollmentDate").textContent =
+    data["Enrollment Date"] || "—";
+
+  document.getElementById("studentStatus").textContent =
+    data["student Status"] || "—";
+
+  document.getElementById("loginSection").style.display = "none";
+  document.getElementById("studentDashboard").style.display = "block";
+}
+
+
+document.getElementById("loginForm").addEventListener(
+  "submit",
+  async function(event) {
+
+    event.preventDefault();
+
+    const button = document.getElementById("loginButton");
+    button.disabled = true;
+    button.textContent = "SIGNING IN...";
+
+    showMessage("");
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      showMessage("Login failed: " + error.message);
+      button.disabled = false;
+      button.textContent = "SIGN IN";
+      return;
+    }
+
+    await loadStudentProfile(data.user);
+
+    button.disabled = false;
+    button.textContent = "SIGN IN";
+  }
+);
+
+
+async function logoutStudent() {
+
+  await db.auth.signOut();
+
+  document.getElementById("studentDashboard").style.display = "none";
+  document.getElementById("loginSection").style.display = "block";
+
+  document.getElementById("loginForm").reset();
+  showMessage("");
+
+}
+
+
+async function checkExistingSession() {
+
+  const { data } = await db.auth.getSession();
+
+  if (data.session) {
+    await loadStudentProfile(data.session.user);
+  }
+
+}
+
+checkExistingSession();
+
+</script>
+
+</body>
+</html>
