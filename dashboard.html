@@ -598,30 +598,39 @@ async function deleteApplication(id) {
 
 async function loadPaymentStudents() {
   const select = document.getElementById("paymentStudent");
+  const message = document.getElementById("paymentMessage");
 
   select.innerHTML = '<option value="">Loading students...</option>';
+  message.textContent = "Checking student records...";
 
   const { data, error } = await db
     .from("Students")
-  .select('*')
-    .order("Full Name", { ascending: true });
+    .select("*");
 
   if (error) {
     select.innerHTML = '<option value="">Could not load students</option>';
-    document.getElementById("paymentMessage").textContent =
-      "Could not load students: " + error.message;
+    message.textContent = "STUDENT ERROR: " + error.message;
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    select.innerHTML = '<option value="">No students found</option>';
+    message.textContent = "Supabase returned zero students.";
     return;
   }
 
   select.innerHTML = '<option value="">Select Student</option>';
 
-  (data || []).forEach(student => {
+  data.forEach(student => {
     const option = document.createElement("option");
     option.value = student.id;
     option.textContent =
-      `${student["Full Name"]} (${student["Registration Number"] || "No registration number"})`;
+      student["Full Name"] + " (" +
+      (student["Registration Number"] || "No registration number") + ")";
     select.appendChild(option);
   });
+
+  message.textContent = "Students found: " + data.length;
 }
 
 
