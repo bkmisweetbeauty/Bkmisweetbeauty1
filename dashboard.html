@@ -736,6 +736,7 @@ document.getElementById("paymentForm").addEventListener("submit", async function
   document.getElementById("paymentForm").reset();
 
   await loadPayments();
+  console.log("Starting payment loading...");
   await loadPaymentStudents();
 });
 
