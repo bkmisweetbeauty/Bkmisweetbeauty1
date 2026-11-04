@@ -294,6 +294,13 @@ footer {
 <div id="myAttendanceHistory">
   Loading attendance history...
 </div>
+    <!-- STUDENT LEARNING MATERIALS -->
+
+<h2>My Learning Materials</h2>
+
+<div id="myLearningMaterials">
+  Loading learning materials...
+</div>
     <button class="logout" id="logoutButton">LOG OUT</button>
 
   </div>
@@ -480,6 +487,57 @@ if (attendanceError) {
       <p>Notes: ${escapePaymentText(record.Notes)}</p>
     </div>
   `).join("");
+}
+  // LOAD STUDENT LEARNING MATERIALS
+
+const materialsContainer = document.getElementById("myLearningMaterials");
+
+materialsContainer.textContent = "Loading learning materials...";
+
+const { data: materials, error: materialsError } = await db
+  .from("LearningMaterials")
+  .select("title, description, course, file_url, created_at")
+  .eq("is_active", true)
+  .order("created_at", { ascending: false });
+
+if (materialsError) {
+  materialsContainer.textContent =
+    "Unable to load learning materials: " + materialsError.message;
+
+} else {
+  const studentCourse = String(data.Course || "").toLowerCase();
+
+  const matchingMaterials = (materials || []).filter(material => {
+    const materialCourse = String(material.course || "").toLowerCase();
+
+    return materialCourse === studentCourse ||
+           materialCourse === "all courses";
+  });
+
+  if (matchingMaterials.length === 0) {
+    materialsContainer.textContent =
+      "No learning materials available for your course yet.";
+
+  } else {
+    materialsContainer.innerHTML = matchingMaterials.map(material => {
+      const safeUrl = /^https:\/\/[^\s"'<>]+$/i.test(material.file_url || "")
+        ? escapePaymentText(material.file_url)
+        : "";
+
+      return `
+        <div class="detail">
+          <strong>${escapePaymentText(material.title)}</strong>
+          <p>${escapePaymentText(material.description)}</p>
+          <p>Course: ${escapePaymentText(material.course)}</p>
+          ${
+            safeUrl
+              ? `<p><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">Open Learning Material</a></p>`
+              : "<p>Material link unavailable.</p>"
+          }
+        </div>
+      `;
+    }).join("");
+  }
 }
   document.getElementById("loginSection").style.display = "none";
   document.getElementById("studentDashboard").style.display = "block";
