@@ -202,6 +202,49 @@ button:disabled {
   <div id="paymentHistoryList">
     Loading payment history...
   </div>
+  <!-- MONTHLY FINANCIAL REPORT -->
+
+<h2>Monthly Financial Report</h2>
+
+<div class="card">
+  <label for="reportMonth">Select Month</label>
+  <input type="month" id="reportMonth">
+
+  <button type="button" onclick="generateMonthlyReport()">
+    Generate Monthly Report
+  </button>
+
+  <button type="button" onclick="downloadMonthlyReport()">
+    Download Monthly Report
+  </button>
+</div>
+
+<div class="card">
+  <h3>Confirmed Income</h3>
+  <p id="monthlyConfirmed">₦0</p>
+</div>
+
+<div class="card">
+  <h3>Pending Payments</h3>
+  <p id="monthlyPending">₦0</p>
+</div>
+
+<div class="card">
+  <h3>Rejected Payments</h3>
+  <p id="monthlyRejected">₦0</p>
+</div>
+
+<div class="card">
+  <h3>Number of Payments</h3>
+  <p id="monthlyPaymentCount">0</p>
+</div>
+
+<div class="card">
+  <h3>Current Outstanding Balances</h3>
+  <p id="monthlyOutstanding">₦0</p>
+</div>
+
+<div id="monthlyReportMessage"></div>
 </section>
   
 <!-- ADD AND EDIT COURSES -->
@@ -1014,6 +1057,159 @@ async function downloadPaymentRecordsReport() {
   });
 
   downloadBKMIcsv("BKMI-Payment-Records-Report.csv", rows);
+}
+  // MONTHLY FINANCIAL REPORT
+
+let monthlyReportRows = [];
+
+async function generateMonthlyReport() {
+  const month = document.getElementById("reportMonth").value;
+  const message = document.getElementById("monthlyReportMessage");
+
+  if (!month) {
+    message.textContent = "Please select a month.";
+    return;
+  }
+
+  message.textContent = "Generating monthly report...";
+
+  const { data: payments, error: paymentError } = await db
+    .from("Payment")
+    .select("*")
+    .order("payment_date", { ascending: false });
+
+  if (paymentError) {
+    message.textContent = "Payment error: " + paymentError.message;
+    return;
+  }
+
+  const { data: students, error: studentError } = await db
+    .from("Students")
+    .select("*");
+
+  if (studentError) {
+    message.textContent = "Student error: " + studentError.message;
+    return;
+  }
+
+  const monthlyPayments = (payments || []).filter(payment => {
+    const paymentDate = String(
+      payment.received_date || payment.payment_date || ""
+    );
+
+    return paymentDate.slice(0, 7) === month;
+  });
+
+  const confirmed = monthlyPayments
+    .filter(p => p.payment_status === "Confirmed")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const pending = monthlyPayments
+    .filter(p => p.payment_status === "Pending")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const rejected = monthlyPayments
+    .filter(p => p.payment_status === "Rejected")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const outstanding = (students || []).reduce(
+    (sum, student) =>
+      sum + Number(student["Outstanding Balance"] || 0),
+    0
+  );
+
+  document.getElementById("monthlyConfirmed").textContent =
+    "₦" + confirmed.toLocaleString("en-NG");
+
+  document.getElementById("monthlyPending").textContent =
+    "₦" + pending.toLocaleString("en-NG");
+
+  document.getElementById("monthlyRejected").textContent =
+    "₦" + rejected.toLocaleString("en-NG");
+
+  document.getElementById("monthlyPaymentCount").textContent =
+    monthlyPayments.length;
+
+  document.getElementById("monthlyOutstanding").textContent =
+    "₦" + outstanding.toLocaleString("en-NG");
+
+  monthlyReportRows = [
+    ["Report Type", "Month", "Payment Type", "Amount", "Method", "Reference", "Date", "Status"]
+  ];
+
+  monthlyReportRows.push([
+    "Monthly Summary",
+    month,
+    "Confirmed Income",
+    confirmed,
+    "",
+    "",
+    "",
+    ""
+  ]);
+
+  monthlyReportRows.push([
+    "Monthly Summary",
+    month,
+    "Pending Payments",
+    pending,
+    "",
+    "",
+    "",
+    ""
+  ]);
+
+  monthlyReportRows.push([
+    "Monthly Summary",
+    month,
+    "Rejected Payments",
+    rejected,
+    "",
+    "",
+    "",
+    ""
+  ]);
+
+  monthlyReportRows.push([
+    "Current Outstanding Balances",
+    month,
+    "",
+    outstanding,
+    "",
+    "",
+    "",
+    ""
+  ]);
+
+  monthlyPayments.forEach(payment => {
+    monthlyReportRows.push([
+      "Payment Record",
+      month,
+      payment.payment_type || "",
+      payment.amount || 0,
+      payment.payment_method || "",
+      payment.payment_reference || "",
+      payment.received_date || payment.payment_date || "",
+      payment.payment_status || ""
+    ]);
+  });
+
+  message.textContent =
+    "Monthly report generated successfully.";
+}
+
+function downloadMonthlyReport() {
+  if (monthlyReportRows.length === 0) {
+    alert("Please generate a monthly report first.");
+    return;
+  }
+
+  const month = document.getElementById("reportMonth").value;
+
+  downloadBKMIcsv(
+    "BKMI-Monthly-Financial-Report-" + month + ".csv",
+    monthlyReportRows
+  );
 }
 async function updatePaymentStatus(id, status) {
   const { error } = await db
