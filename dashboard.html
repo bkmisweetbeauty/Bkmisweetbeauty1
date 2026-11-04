@@ -142,9 +142,33 @@ button:disabled {
 <!-- STUDENT FEE SUMMARY -->
 
 <section>
-  <h2>Student Fee Summary</h2>
-  <p>View each student's course fees, payments and outstanding balance.</p>
-  <div id="studentFeesList">Loading student fee summaries...</div>
+  <h2>BKMI Financial Overview</h2>
+
+  <div class="card">
+    <h3>Total Students</h3>
+    <p id="totalStudents">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Fees Expected</h3>
+    <p id="totalFeesExpected">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Payments Received</h3>
+    <p id="totalPaymentsReceived">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>Total Outstanding Balances</h3>
+    <p id="totalOutstanding">Loading...</p>
+  </div>
+
+  <h2>Individual Student Fee Summary</h2>
+
+  <div id="studentFeesList">
+    Loading student fee summaries...
+  </div>
 </section>
 
 <!-- ADD AND EDIT COURSES -->
@@ -1334,7 +1358,7 @@ async function deleteStudentVideo(id) {
   alert("Video deleted successfully.");
   await loadStudentVideos();
 }
-  // STUDENT FEE SUMMARY
+ // STUDENT FEE SUMMARY AND FINANCIAL OVERVIEW
 
 async function loadStudentFeeSummaries() {
   const container = document.getElementById("studentFeesList");
@@ -1355,6 +1379,32 @@ async function loadStudentFeeSummaries() {
     container.textContent = "No student records found.";
     return;
   }
+
+  const totalStudents = data.length;
+
+  const totalFees = data.reduce(
+    (sum, student) => sum + Number(student["Total Fee"] || 0), 0
+  );
+
+  const totalPaid = data.reduce(
+    (sum, student) => sum + Number(student["Total Paid"] || 0), 0
+  );
+
+  const totalOutstanding = data.reduce(
+    (sum, student) => sum + Number(student["Outstanding Balance"] || 0), 0
+  );
+
+  document.getElementById("totalStudents").textContent =
+    totalStudents.toLocaleString("en-NG");
+
+  document.getElementById("totalFeesExpected").textContent =
+    "₦" + totalFees.toLocaleString("en-NG");
+
+  document.getElementById("totalPaymentsReceived").textContent =
+    "₦" + totalPaid.toLocaleString("en-NG");
+
+  document.getElementById("totalOutstanding").textContent =
+    "₦" + totalOutstanding.toLocaleString("en-NG");
 
   container.innerHTML = data.map(student => `
     <div class="card">
