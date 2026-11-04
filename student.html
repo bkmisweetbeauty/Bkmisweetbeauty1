@@ -242,7 +242,51 @@ footer {
       <strong>Student Status</strong>
       <span id="studentStatus">—</span>
     </div>
+<!-- STUDENT FINANCIAL SUMMARY -->
 
+<h2>My Financial Summary</h2>
+
+<div class="detail">
+  <strong>Course Fee</strong>
+  <span id="myCourseFee">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Registration Fee</strong>
+  <span id="myRegistrationFee">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Admission Fee</strong>
+  <span id="myAdmissionFee">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Total Fee</strong>
+  <span id="myTotalFee">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Total Paid</strong>
+  <span id="myTotalPaid">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Outstanding Balance</strong>
+  <span id="myOutstandingBalance">₦0</span>
+</div>
+
+<div class="detail">
+  <strong>Early-Bird Qualified</strong>
+  <span id="myEarlyBirdStatus">—</span>
+</div>
+    <!-- STUDENT PAYMENT HISTORY -->
+
+<h2>My Payment History</h2>
+
+<div id="myPaymentHistory">
+  Loading payment history...
+</div>
     <button class="logout" id="logoutButton">LOG OUT</button>
 
   </div>
@@ -335,7 +379,73 @@ async function loadStudentProfile(user) {
 
   document.getElementById("studentStatus").textContent =
     data["student Status"] || "—";
+// LOAD STUDENT FINANCIAL DETAILS
 
+function formatNaira(amount) {
+  return "₦" + Number(amount || 0).toLocaleString("en-NG");
+}
+
+document.getElementById("myCourseFee").textContent =
+  formatNaira(data["Course Fee"]);
+
+document.getElementById("myRegistrationFee").textContent =
+  formatNaira(data["Registration Fee"]);
+
+document.getElementById("myAdmissionFee").textContent =
+  formatNaira(data["Admission Fee"]);
+
+document.getElementById("myTotalFee").textContent =
+  formatNaira(data["Total Fee"]);
+
+document.getElementById("myTotalPaid").textContent =
+  formatNaira(data["Total Paid"]);
+
+document.getElementById("myOutstandingBalance").textContent =
+  formatNaira(data["Outstanding Balance"]);
+
+document.getElementById("myEarlyBirdStatus").textContent =
+  data["Early-Bird Qualified"] ? "Yes" : "No";
+  // LOAD STUDENT PAYMENT HISTORY
+
+const paymentContainer = document.getElementById("myPaymentHistory");
+
+paymentContainer.textContent = "Loading payment history...";
+
+const escapePaymentText = (value) =>
+  String(value ?? "—").replace(/[&<>"']/g, character => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[character]);
+
+const { data: payments, error: paymentError } = await db
+  .from("Payment")
+  .select("payment_type, amount, payment_method, payment_reference, payment_status, received_date, payment_date, notes")
+  .eq("student_uuid", data.id)
+  .order("payment_date", { ascending: false });
+
+if (paymentError) {
+  paymentContainer.textContent =
+    "Unable to load payment history: " + paymentError.message;
+
+} else if (!payments || payments.length === 0) {
+  paymentContainer.textContent = "No payment records yet.";
+
+} else {
+  paymentContainer.innerHTML = payments.map(payment => `
+    <div class="detail">
+      <strong>${escapePaymentText(payment.payment_type || "Payment")}</strong>
+      <p>Amount: ${formatNaira(payment.amount)}</p>
+      <p>Method: ${escapePaymentText(payment.payment_method)}</p>
+      <p>Reference: ${escapePaymentText(payment.payment_reference)}</p>
+      <p>Date: ${escapePaymentText(payment.received_date || payment.payment_date)}</p>
+      <p>Status: ${escapePaymentText(payment.payment_status || "Pending")}</p>
+      <p>Notes: ${escapePaymentText(payment.notes)}</p>
+    </div>
+  `).join("");
+}
   document.getElementById("loginSection").style.display = "none";
   document.getElementById("studentDashboard").style.display = "block";
 }
