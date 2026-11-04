@@ -143,6 +143,11 @@ footer {
         <label>Password</label>
         <input type="password" id="loginPassword" required
           placeholder="Your password">
+        <label>BKMI Registration Number (for first login)</label>
+<input
+  type="text"
+  id="loginRegistrationNumber"
+  placeholder="Example: BKMI/2026/0001">
 
         <button type="submit" id="loginButton">SIGN IN</button>
       </form>
@@ -163,6 +168,12 @@ footer {
 
         <label>Email Address</label>
         <input type="email" id="signupEmail" required
+          <label>BKMI Registration Number</label>
+<input
+  type="text"
+  id="signupRegistrationNumber"
+  required
+  placeholder="Example: BKMI/2026/0001">
           placeholder="Your registered application email">
 
         <label>Create Password</label>
@@ -341,6 +352,7 @@ document.getElementById("signupForm").addEventListener(
     const button = document.getElementById("signupButton");
 
     const email = document.getElementById("signupEmail").value.trim();
+    const registrationNumber = document.getElementById("signupRegistrationNumber").value.trim();
     const password = document.getElementById("signupPassword").value;
     const confirmation = document.getElementById("confirmPassword").value;
 
@@ -367,14 +379,30 @@ document.getElementById("signupForm").addEventListener(
 
       if (error) {
         showMessage("Account creation failed: " + error.message);
-      } else if (data.session) {
-        showMessage(
-          "Account created. Checking your student registration...",
-          "#247a38"
-        );
+     } else if (data.session) {
+  const { error: linkError } = await db.rpc(
+    "link_student_account",
+    {
+      p_registration_number: registrationNumber
+    }
+  );
 
-        await loadStudentProfile(data.user);
-      } else {
+  if (linkError) {
+    showMessage(
+      "Account created, but registration linking failed: " +
+      linkError.message
+    );
+    return;
+  }
+
+  showMessage(
+    "Account linked successfully!",
+    "#247a38"
+  );
+
+  await loadStudentProfile(data.user);
+}
+        else {
         showMessage(
           "Account created! Please check your email and verify your address before logging in.",
           "#247a38"
@@ -423,10 +451,28 @@ document.getElementById("loginForm").addEventListener(
       });
 
       if (error) {
-        showMessage("Login failed: " + error.message);
-      } else {
-        await loadStudentProfile(data.user);
+  showMessage("Login failed: " + error.message);
+} else {
+  const registrationNumber = document
+    .getElementById("loginRegistrationNumber")
+    .value.trim();
+
+  if (registrationNumber) {
+    const { error: linkError } = await db.rpc(
+      "link_student_account",
+      {
+        p_registration_number: registrationNumber
       }
+    );
+
+    if (linkError) {
+      showMessage("Registration verification failed: " + linkError.message);
+      return;
+    }
+  }
+
+  await loadStudentProfile(data.user);
+}
 
     } catch (error) {
       showMessage("Something went wrong: " + error.message);
