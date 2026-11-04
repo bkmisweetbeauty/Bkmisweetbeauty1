@@ -287,6 +287,13 @@ footer {
 <div id="myPaymentHistory">
   Loading payment history...
 </div>
+    <!-- STUDENT ATTENDANCE HISTORY -->
+
+<h2>My Attendance History</h2>
+
+<div id="myAttendanceHistory">
+  Loading attendance history...
+</div>
     <button class="logout" id="logoutButton">LOG OUT</button>
 
   </div>
@@ -443,6 +450,34 @@ if (paymentError) {
       <p>Date: ${escapePaymentText(payment.received_date || payment.payment_date)}</p>
       <p>Status: ${escapePaymentText(payment.payment_status || "Pending")}</p>
       <p>Notes: ${escapePaymentText(payment.notes)}</p>
+    </div>
+  `).join("");
+}
+  // LOAD STUDENT ATTENDANCE HISTORY
+
+const attendanceContainer = document.getElementById("myAttendanceHistory");
+
+attendanceContainer.textContent = "Loading attendance history...";
+
+const { data: attendance, error: attendanceError } = await db
+  .from("Attendance")
+  .select("attendance_date, Status, Notes")
+  .eq("student_id", data.id)
+  .order("attendance_date", { ascending: false });
+
+if (attendanceError) {
+  attendanceContainer.textContent =
+    "Unable to load attendance: " + attendanceError.message;
+
+} else if (!attendance || attendance.length === 0) {
+  attendanceContainer.textContent = "No attendance records yet.";
+
+} else {
+  attendanceContainer.innerHTML = attendance.map(record => `
+    <div class="detail">
+      <strong>Date: ${escapePaymentText(record.attendance_date)}</strong>
+      <p>Status: ${escapePaymentText(record.Status)}</p>
+      <p>Notes: ${escapePaymentText(record.Notes)}</p>
     </div>
   `).join("");
 }
