@@ -171,6 +171,33 @@ button:disabled {
   </div>
 </section>
 
+  <!-- PAYMENT HISTORY AND FINANCIAL REPORTS -->
+
+<section>
+  <h2>Payment History & Financial Reports</h2>
+
+  <div class="card">
+    <h3>Confirmed Payments</h3>
+    <p id="confirmedPaymentsTotal">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>Pending Payments</h3>
+    <p id="pendingPaymentsTotal">Loading...</p>
+  </div>
+
+  <div class="card">
+    <h3>Rejected Payments</h3>
+    <p id="rejectedPaymentsTotal">Loading...</p>
+  </div>
+
+  <h3>All Payment Records</h3>
+
+  <div id="paymentHistoryList">
+    Loading payment history...
+  </div>
+</section>
+  
 <!-- ADD AND EDIT COURSES -->
 
 <section>
@@ -457,6 +484,7 @@ async function checkAdmin() {
   await loadCourses();
     await loadPaymentStudents();
   await loadPayments();
+  await loadPaymentHistory();
   await loadStudentFeeSummaries();
   await loadStudentGallery();
   await loadStudentVideos();
@@ -743,7 +771,96 @@ async function loadPayments() {
     `;
   }).join("");
 }
+// PAYMENT HISTORY AND FINANCIAL REPORTS
 
+async function loadPaymentHistory() {
+  const container = document.getElementById("paymentHistoryList");
+
+  container.textContent = "Loading payment history...";
+
+  const { data, error } = await db
+    .from("Payment")
+    .select("*")
+    .order("payment_date", { ascending: false });
+
+  if (error) {
+    container.textContent = "Could not load payment history: " + error.message;
+    return;
+  }
+
+  const payments = data || [];
+
+  const confirmed = payments
+    .filter(p => p.payment_status === "Confirmed")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const pending = payments
+    .filter(p => p.payment_status === "Pending")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  const rejected = payments
+    .filter(p => p.payment_status === "Rejected")
+    .reduce((sum, p) => sum + Number(p.amount || 0), 0);
+
+  document.getElementById("confirmedPaymentsTotal").textContent =
+    "₦" + confirmed.toLocaleString("en-NG");
+
+  document.getElementById("pendingPaymentsTotal").textContent =
+    "₦" + pending.toLocaleString("en-NG");
+
+  document.getElementById("rejectedPaymentsTotal").textContent =
+    "₦" + rejected.toLocaleString("en-NG");
+
+  if (payments.length === 0) {
+    container.textContent = "No payment records yet.";
+    return;
+  }
+
+  const studentIds = [...new Set(
+    payments.map(p => p.student_uuid).filter(Boolean)
+  )];
+
+  let students = [];
+
+  if (studentIds.length > 0) {
+    const result = await db
+      .from("Students")
+      .select("*")
+      .in("id", studentIds);
+
+    if (result.error) {
+      container.textContent =
+        "Could not load student details: " + result.error.message;
+      return;
+    }
+
+    students = result.data || [];
+  }
+
+  const studentMap = {};
+
+  students.forEach(student => {
+    studentMap[student.id] = student;
+  });
+
+  container.innerHTML = payments.map(payment => {
+    const student = studentMap[payment.student_uuid];
+
+    return `
+      <div class="card">
+        <h3>${escapeHTML(student?.["Full Name"] || "Student")}</h3>
+        <p>Registration Number: ${escapeHTML(student?.["Registration Number"] || "")}</p>
+        <p>Payment Type: ${escapeHTML(payment.payment_type || "")}</p>
+        <p>Amount: ₦${Number(payment.amount || 0).toLocaleString("en-NG")}</p>
+        <p>Method: ${escapeHTML(payment.payment_method || "")}</p>
+        <p>Reference: ${escapeHTML(payment.payment_reference || "")}</p>
+        <p>Date: ${escapeHTML(payment.received_date || payment.payment_date || "")}</p>
+        <p>Status: ${escapeHTML(payment.payment_status || "Pending")}</p>
+        <p>Notes: ${escapeHTML(payment.notes || "")}</p>
+      </div>
+    `;
+  }).join("");
+}
 async function updatePaymentStatus(id, status) {
   const { error } = await db
     .from("Payment")
