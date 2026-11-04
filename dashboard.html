@@ -175,7 +175,13 @@ button:disabled {
 
 <section>
   <h2>Payment History & Financial Reports</h2>
+<button type="button" onclick="downloadStudentFinancialReport()">
+  Download Student Financial Report
+</button>
 
+<button type="button" onclick="downloadPaymentRecordsReport()">
+  Download Payment Records Report
+</button>
   <div class="card">
     <h3>Confirmed Payments</h3>
     <p id="confirmedPaymentsTotal">Loading...</p>
@@ -860,6 +866,154 @@ async function loadPaymentHistory() {
       </div>
     `;
   }).join("");
+}
+  // DOWNLOAD CSV REPORTS
+
+function downloadBKMIcsv(filename, rows) {
+  if (!rows || rows.length === 0) {
+    alert("There is no data to download yet.");
+    return;
+  }
+
+  const csv = rows.map(row =>
+    row.map(value =>
+      '"' + String(value ?? "").replace(/"/g, '""') + '"'
+    ).join(",")
+  ).join("\r\n");
+
+  const blob = new Blob(
+    ["\uFEFF" + csv],
+    { type: "text/csv;charset=utf-8;" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+
+  URL.revokeObjectURL(url);
+}
+
+// STUDENT FINANCIAL REPORT
+
+async function downloadStudentFinancialReport() {
+  const { data, error } = await db
+    .from("Students")
+    .select("*")
+    .order("Full Name", { ascending: true });
+
+  if (error) {
+    alert("Could not download report: " + error.message);
+    return;
+  }
+
+  const rows = [
+    [
+      "Full Name",
+      "Registration Number",
+      "Course",
+      "Course Fee",
+      "Registration Fee",
+      "Admission Fee",
+      "Total Fee",
+      "Total Paid",
+      "Outstanding Balance",
+      "Early-Bird Qualified"
+    ]
+  ];
+
+  (data || []).forEach(student => {
+    rows.push([
+      student["Full Name"],
+      student["Registration Number"],
+      student["Course"],
+      student["Course Fee"],
+      student["Registration Fee"],
+      student["Admission Fee"],
+      student["Total Fee"],
+      student["Total Paid"],
+      student["Outstanding Balance"],
+      student["Early-Bird Qualified"] ? "Yes" : "No"
+    ]);
+  });
+
+  downloadBKMIcsv("BKMI-Student-Financial-Report.csv", rows);
+}
+
+// PAYMENT RECORDS REPORT
+
+async function downloadPaymentRecordsReport() {
+  const { data, error } = await db
+    .from("Payment")
+    .select("*")
+    .order("payment_date", { ascending: false });
+
+  if (error) {
+    alert("Could not download report: " + error.message);
+    return;
+  }
+
+  const rows = [
+    [
+      "Student Name",
+      "Registration Number",
+      "Payment Type",
+      "Amount",
+      "Payment Method",
+      "Reference",
+      "Payment Date",
+      "Status",
+      "Notes"
+    ]
+  ];
+
+  const studentIds = [...new Set(
+    (data || []).map(p => p.student_uuid).filter(Boolean)
+  )];
+
+  let students = [];
+
+  if (studentIds.length > 0) {
+    const result = await db
+      .from("Students")
+      .select("*")
+      .in("id", studentIds);
+
+    if (result.error) {
+      alert("Could not load student details: " + result.error.message);
+      return;
+    }
+
+    students = result.data || [];
+  }
+
+  const studentMap = {};
+
+  students.forEach(student => {
+    studentMap[student.id] = student;
+  });
+
+  (data || []).forEach(payment => {
+    const student = studentMap[payment.student_uuid];
+
+    rows.push([
+      student?.["Full Name"] || "Student",
+      student?.["Registration Number"] || "",
+      payment.payment_type,
+      payment.amount,
+      payment.payment_method,
+      payment.payment_reference,
+      payment.received_date || payment.payment_date,
+      payment.payment_status,
+      payment.notes
+    ]);
+  });
+
+  downloadBKMIcsv("BKMI-Payment-Records-Report.csv", rows);
 }
 async function updatePaymentStatus(id, status) {
   const { error } = await db
