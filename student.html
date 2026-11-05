@@ -167,14 +167,18 @@ footer {
       <form id="signupForm">
 
         <label>Email Address</label>
-        <input type="email" id="signupEmail" required
-          <label>BKMI Registration Number</label>
+<input
+  type="email"
+  id="signupEmail"
+  required
+  placeholder="Your registered application email">
+
+<label>BKMI Registration Number</label>
 <input
   type="text"
   id="signupRegistrationNumber"
   required
   placeholder="Example: BKMI/2026/0001">
-          placeholder="Your registered application email">
 
         <label>Create Password</label>
         <input type="password" id="signupPassword"
@@ -294,6 +298,35 @@ footer {
 <div id="myAttendanceHistory">
   Loading attendance history...
 </div>
+
+    <!-- ONLINE PAYMENT -->
+
+<h2>Make a Payment</h2>
+
+<div id="onlinePaymentSection">
+  <label for="paymentType">Payment Type</label>
+
+  <select id="paymentType">
+    <option value="Course Fee">Course Fee</option>
+    <option value="Registration Fee">Registration Fee</option>
+    <option value="Admission Fee">Admission Fee</option>
+  </select>
+
+  <label for="paymentAmount">Amount (₦)</label>
+
+  <input
+    type="number"
+    id="paymentAmount"
+    min="100"
+    placeholder="Enter amount"
+  >
+
+  <button type="button" id="payOnlineButton">
+    PAY ONLINE
+  </button>
+
+  <p id="onlinePaymentMessage"></p>
+</div>
     <!-- STUDENT LEARNING MATERIALS -->
 
 <h2>My Learning Materials</h2>
@@ -324,7 +357,63 @@ const db = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_PUBLISHABLE_KEY
 );
+// BKMI ONLINE PAYMENT
 
+document.getElementById("payOnlineButton").addEventListener(
+  "click",
+  async function() {
+
+    const button = document.getElementById("payOnlineButton");
+    const message = document.getElementById("onlinePaymentMessage");
+
+    const amount = Number(
+      document.getElementById("paymentAmount").value
+    );
+
+    const paymentType =
+      document.getElementById("paymentType").value;
+
+    if (!amount || amount < 100) {
+      message.textContent = "Enter a valid payment amount of at least ₦100.";
+      return;
+    }
+
+    button.disabled = true;
+    button.textContent = "PROCESSING...";
+    message.textContent = "Preparing your secure payment...";
+
+    try {
+      const { data, error } = await db.functions.invoke(
+        "initialize-paystack-payment",
+        {
+          body: {
+            amount: amount,
+            payment_type: paymentType
+          }
+        }
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      if (!data || !data.authorization_url) {
+        throw new Error(data?.error || "Unable to start payment.");
+      }
+
+      message.textContent = "Redirecting to secure payment...";
+
+      window.location.href = data.authorization_url;
+
+    } catch (error) {
+      message.textContent =
+        "Payment could not start: " + error.message;
+
+      button.disabled = false;
+      button.textContent = "PAY ONLINE";
+    }
+  }
+);
 function showMessage(message, color = "#b3261e") {
   const box = document.getElementById("portalMessage");
   box.textContent = message;
@@ -705,6 +794,55 @@ document.getElementById("logoutButton").addEventListener(
 );
 
 
+// VERIFY RETURNED PAYSTACK PAYMENT
+
+async function verifyReturnedPayment() {
+
+  const reference = new URLSearchParams(
+    window.location.search
+  ).get("reference");
+
+  if (!reference) {
+    return;
+  }
+
+  const message = document.getElementById("onlinePaymentMessage");
+
+  message.textContent = "Verifying your payment. Please wait...";
+
+  try {
+    const { data, error } = await db.functions.invoke(
+      "verify-paystack-payment",
+      {
+        body: {
+          reference: reference
+        }
+      }
+    );
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.status) {
+      throw new Error(data?.error || "Payment verification failed.");
+    }
+
+    message.textContent = data.message || "Payment confirmed successfully.";
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+  } catch (error) {
+    message.textContent =
+      "Payment verification issue: " + error.message;
+  }
+}
+
+
 // CHECK EXISTING LOGIN SESSION
 
 async function checkExistingSession() {
@@ -717,6 +855,10 @@ async function checkExistingSession() {
   }
 
   if (data.session) {
+    await loadStudentProfile(data.session.user);
+
+    await verifyReturnedPayment();
+
     await loadStudentProfile(data.session.user);
   }
 }
