@@ -479,6 +479,45 @@ button:disabled {
 
 </section>
 
+<!-- LEARNING MATERIALS MANAGEMENT -->
+<section>
+  <h2>Learning Materials Management</h2>
+
+  <h3>Upload New Learning Material</h3>
+
+  <label>Material Title</label>
+  <input type="text" id="materialTitle" placeholder="Enter material title">
+
+  <label>Description</label>
+  <textarea id="materialDescription" placeholder="Enter description"></textarea>
+
+  <label>Course</label>
+  <select id="materialCourse">
+    <option value="">Select Course</option>
+    <option value="All Courses">All Courses</option>
+    <option value="Makeup & Gele Artistry">Makeup & Gele Artistry</option>
+    <option value="Braiding">Braiding</option>
+    <option value="Cosmetology Course 1">Cosmetology Course 1</option>
+    <option value="Barbering and Natural Dreadlocks">Barbering and Natural Dreadlocks</option>
+    <option value="Semi-Permanent Brows and Eyelash">Semi-Permanent Brows and Eyelash</option>
+    <option value="Nail Technology">Nail Technology</option>
+    <option value="Professional Wig Training">Professional Wig Training</option>
+    <option value="Hairdressing">Hairdressing</option>
+    <option value="Cosmetology Course 2">Cosmetology Course 2</option>
+    <option value="Facials and Aesthetics Therapy">Facials and Aesthetics Therapy</option>
+  </select>
+
+  <label>Upload PDF Material</label>
+  <input type="file" id="materialFile" accept=".pdf,application/pdf">
+
+  <button type="button" id="uploadMaterialButton">Upload Learning Material</button>
+
+  <p id="materialMessage"></p>
+
+  <h3>Uploaded Learning Materials</h3>
+  <div id="adminLearningMaterials">Loading materials...</div>
+</section>
+
 </main>
 
 <script>
