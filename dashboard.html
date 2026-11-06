@@ -715,7 +715,60 @@ async function updateApplication(id, status) {
       alert("Could not update application: " + updateError.message);
       return;
     }
+// SEND ADMISSION CONFIRMATION EMAIL
 
+if (status === "Approved") {
+
+  const studentEmail = (applicant.Email || "").trim();
+  const studentPhone = (applicant["Phone Number"] || "").trim();
+
+  let studentRecord = null;
+  let lookupError = null;
+
+  if (studentEmail) {
+    const result = await db
+      .from("Students")
+      .select('"Registration Number"')
+      .eq("Email", studentEmail)
+      .maybeSingle();
+
+    studentRecord = result.data;
+    lookupError = result.error;
+  }
+
+  if (!studentRecord && studentPhone && !lookupError) {
+    const result = await db
+      .from("Students")
+      .select('"Registration Number"')
+      .eq("Phone Number", studentPhone)
+      .maybeSingle();
+
+    studentRecord = result.data;
+    lookupError = result.error;
+  }
+
+  if (lookupError || !studentRecord?.["Registration Number"]) {
+    alert("Application approved, but registration number could not be retrieved. Admission email not sent.");
+  } else {
+    const { error: emailError } = await db.functions.invoke(
+      "send-admission-email",
+      {
+        body: {
+          studentName: applicant["Full Name"],
+          email: studentEmail,
+          registrationNumber: studentRecord["Registration Number"],
+          course: applicant.Course
+        }
+      }
+    );
+
+    if (emailError) {
+      alert("Application approved, but admission email could not be sent: " + emailError.message);
+    } else {
+      alert("Admission confirmation email sent successfully!");
+    }
+  }
+}
     alert(
       status === "Approved"
         ? "Application approved. Student record created or already exists."
