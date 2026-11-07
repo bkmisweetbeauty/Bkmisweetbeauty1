@@ -209,132 +209,236 @@ if (applicationForm) {
 
       resultBox.appendChild(whatsappButton);
       
-      // STEP 4: CREATE THE FULL ENROLMENT APPLICATION FORM
+    
+// STEP 4: CHECK PAYMENTS AND UNLOCK FULL APPLICATION
 
-      let fullApplication = document.getElementById(
-        "bkmiFullApplication"
-      );
+const applicantToken = sessionStorage.getItem(
+  "bkmi_applicant_token"
+);
 
-      if (!fullApplication) {
-        fullApplication = document.createElement("form");
-        fullApplication.id = "bkmiFullApplication";
+let paymentStatusBox = document.getElementById(
+  "bkmiPaymentStatus"
+);
 
-        fullApplication.style.cssText =
-          "background:#fff;padding:20px;margin-top:20px;border:2px solid #54206f;border-radius:12px;";
+if (!paymentStatusBox) {
+  paymentStatusBox = document.createElement("div");
+  paymentStatusBox.id = "bkmiPaymentStatus";
+  paymentStatusBox.style.cssText =
+    "background:#f7effb;padding:20px;margin-top:20px;border-radius:12px;";
 
-        fullApplication.innerHTML = `
-          <h3>Complete Your Enrolment Application</h3>
-          <p>BKMI must confirm both payments before your application can be submitted.</p>
+  resultBox.appendChild(paymentStatusBox);
+}
 
-          <label for="bkmiCourse">Select Your Course *</label>
-          <select id="bkmiCourse" required style="display:block;width:100%;padding:12px;margin:10px 0;">
-            <option value="">Choose a course</option>
-            <option value="Cosmetology">Cosmetology</option>
-            <option value="Hairdressing">Hairdressing</option>
-            <option value="Makeup Artistry">Makeup Artistry</option>
-            <option value="Nail Technology">Nail Technology</option>
-            <option value="Spa Therapy">Spa Therapy</option>
-            <option value="Semi-Permanent Brows and Lashes">Semi-Permanent Brows and Lashes</option>
-            <option value="Barbering">Barbering</option>
-            <option value="Wig Making">Wig Making</option>
-          </select>
+let fullApplication = document.getElementById(
+  "bkmiFullApplication"
+);
 
-          <label for="bkmiMessage">Additional Information (Optional)</label>
-          <textarea id="bkmiMessage" rows="4" style="display:block;width:100%;padding:12px;margin:10px 0;" placeholder="Tell us anything else about your training application."></textarea>
+if (!fullApplication) {
+  fullApplication = document.createElement("form");
+  fullApplication.id = "bkmiFullApplication";
+  fullApplication.style.cssText =
+    "background:white;padding:20px;margin-top:20px;border:2px solid #54206f;border-radius:12px;";
 
-          <button type="submit" style="background:#54206f;color:white;padding:14px 20px;border:0;border-radius:8px;width:100%;">
-            Submit Full Application
-          </button>
+  fullApplication.innerHTML = `
+    <h3>Complete Your Enrolment Application</h3>
 
-          <p id="bkmiFullApplicationMessage"></p>
-        `;
+    <label for="bkmiCourse">Select Your Course *</label>
 
-        resultBox.appendChild(fullApplication);
+    <select id="bkmiCourse" required style="display:block;width:100%;padding:12px;margin:10px 0;">
+      <option value="">Choose a course</option>
+      <option value="Cosmetology">Cosmetology</option>
+      <option value="Hairdressing">Hairdressing</option>
+      <option value="Makeup Artistry">Makeup Artistry</option>
+      <option value="Nail Technology">Nail Technology</option>
+      <option value="Spa Therapy">Spa Therapy</option>
+      <option value="Semi-Permanent Brows and Lashes">Semi-Permanent Brows and Lashes</option>
+      <option value="Barbering">Barbering</option>
+      <option value="Wig Making">Wig Making</option>
+      <option value="Barbering and Natural Dreadlocks">Barbering and Natural Dreadlocks</option>
+    </select>
 
-        fullApplication.addEventListener("submit", async (event) => {
-          event.preventDefault();
+    <label for="bkmiMessage">Additional Information (Optional)</label>
 
-          const messageElement = document.getElementById(
-            "bkmiFullApplicationMessage"
-          );
+    <textarea id="bkmiMessage" rows="4"
+      style="display:block;width:100%;padding:12px;margin:10px 0;"
+      placeholder="Additional information"></textarea>
 
-          const submitButton = fullApplication.querySelector(
-            'button[type="submit"]'
-          );
+    <button type="submit"
+      style="background:#54206f;color:white;padding:14px;border:0;border-radius:8px;width:100%;">
+      Submit Full Application
+    </button>
 
-          const applicantToken = sessionStorage.getItem(
-            "bkmi_applicant_token"
-          );
+    <p id="bkmiFullApplicationMessage"></p>
+  `;
 
-          if (!applicantToken) {
-            messageElement.textContent =
-              "Your application session has expired. Please start again.";
-            return;
-          }
+  fullApplication.hidden = true;
+  resultBox.appendChild(fullApplication);
 
-          submitButton.disabled = true;
-          submitButton.textContent = "Submitting application...";
+  fullApplication.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-          try {
-            const { data, error } =
-              await supabaseClient.functions.invoke(
-                "submit-applicant-application",
-                {
-                  headers: {
-                    Authorization: `Bearer ${applicantToken}`
-                  },
-                  body: {
-                    course: document.getElementById(
-                      "bkmiCourse"
-                    ).value,
-                    message: document.getElementById(
-                      "bkmiMessage"
-                    ).value
-                  }
-                }
-              );
+    const messageElement = document.getElementById(
+      "bkmiFullApplicationMessage"
+    );
 
-            if (error) throw error;
+    const submitButton = fullApplication.querySelector(
+      'button[type="submit"]'
+    );
 
-            if (!data || !data.success) {
-              throw new Error(
-                data?.error || "Application submission failed."
-              );
+    const token = sessionStorage.getItem(
+      "bkmi_applicant_token"
+    );
+
+    if (!token) {
+      messageElement.textContent =
+        "Your session has expired. Please start again.";
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+
+    try {
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "submit-applicant-application",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            },
+            body: {
+              course: document.getElementById(
+                "bkmiCourse"
+              ).value,
+              message: document.getElementById(
+                "bkmiMessage"
+              ).value
             }
-
-            messageElement.textContent =
-              "Your full application has been submitted successfully! BKMI will contact you.";
-
-            submitButton.textContent = "Application Submitted";
-            sessionStorage.removeItem("bkmi_applicant_token");
-            sessionStorage.removeItem("bkmi_applicant_session_id");
-
-          } catch (error) {
-            messageElement.textContent =
-              error.message ||
-              "Your application could not be submitted.";
-
-            submitButton.disabled = false;
-            submitButton.textContent = "Submit Full Application";
           }
-        });
+        );
+
+      if (error) throw error;
+
+      if (!data || !data.success) {
+        throw new Error(
+          data?.error || "Application submission failed."
+        );
       }
 
+      messageElement.textContent =
+        "Your application has been submitted successfully! BKMI will contact you.";
 
-      formError.textContent =
-        "Your payment requests have been created. Please complete both transfers.";
+      submitButton.textContent = "Application Submitted";
 
-      submitButton.textContent = "Payment Requests Created";
+      sessionStorage.removeItem("bkmi_applicant_token");
+      sessionStorage.removeItem("bkmi_applicant_session_id");
 
     } catch (error) {
-      console.error("BKMI applicant payment error:", error);
-
-      formError.textContent =
-        error.message ||
-        "We could not prepare your payment requests. Please contact BKMI.";
+      messageElement.textContent =
+        error.message || "Unable to submit your application.";
 
       submitButton.disabled = false;
-      submitButton.textContent = "Submit Application";
+      submitButton.textContent = "Submit Full Application";
     }
   });
 }
+
+// CHECK PAYMENT CONFIRMATION
+
+const checkPaymentButton = document.createElement("button");
+
+checkPaymentButton.type = "button";
+checkPaymentButton.textContent = "Check My Payment Status";
+checkPaymentButton.style.cssText =
+  "background:#54206f;color:white;padding:13px;border:0;border-radius:8px;width:100%;margin-top:12px;";
+
+paymentStatusBox.innerHTML = `
+  <h3>Enrolment Payment Verification</h3>
+  <p id="bkmiPaymentStatusMessage">
+    Your full application is locked until BKMI confirms both payments.
+  </p>
+`;
+
+paymentStatusBox.appendChild(checkPaymentButton);
+
+async function checkApplicantPayments() {
+  const token = sessionStorage.getItem(
+    "bkmi_applicant_token"
+  );
+
+  if (!token) {
+    document.getElementById(
+      "bkmiPaymentStatusMessage"
+    ).textContent =
+      "Your applicant session has expired. Please start again.";
+    return;
+  }
+
+  checkPaymentButton.disabled = true;
+  checkPaymentButton.textContent = "Checking...";
+
+  try {
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "submit-applicant-application",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: {
+            action: "check_payment_status"
+          }
+        }
+      );
+
+    if (error) throw error;
+
+    if (!data || !data.success) {
+      throw new Error(
+        data?.error || "Unable to check payment status."
+      );
+    }
+
+    if (data.payments_confirmed) {
+      document.getElementById(
+        "bkmiPaymentStatusMessage"
+      ).textContent =
+        "Both payments have been confirmed. You can now complete your full application.";
+
+      fullApplication.hidden = false;
+
+      checkPaymentButton.textContent =
+        "Payments Confirmed";
+
+      checkPaymentButton.disabled = true;
+
+    } else {
+      fullApplication.hidden = true;
+
+      document.getElementById(
+        "bkmiPaymentStatusMessage"
+      ).textContent =
+        "We are still waiting for BKMI to confirm both fees. Please check again after confirmation.";
+    }
+
+  } catch (error) {
+    document.getElementById(
+      "bkmiPaymentStatusMessage"
+    ).textContent =
+      error.message || "Payment verification failed.";
+
+  } finally {
+    if (!fullApplication.hidden) return;
+
+    checkPaymentButton.disabled = false;
+    checkPaymentButton.textContent =
+      "Check My Payment Status";
+  }
+}
+
+checkPaymentButton.addEventListener(
+  "click",
+  checkApplicantPayments
+);
+
+checkApplicantPayments();
