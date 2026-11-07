@@ -171,6 +171,29 @@ button:disabled {
   </div>
 </section>
 
+  <!-- APPLICANT FEE VERIFICATION -->
+
+<section>
+  <h2>Applicant Fee Verification</h2>
+
+  <p class="small">
+    Review bank transfer payments for new applicants.
+    Confirm payment only after checking that the money has
+    actually entered the BKMI Access Bank account.
+  </p>
+
+  <button type="button" id="refreshApplicantPayments">
+    Refresh Applicant Payments
+  </button>
+
+  <div id="applicantPaymentsMessage" class="status">
+    Loading applicant payments...
+  </div>
+
+  <div id="applicantPaymentsList">
+    Applicant payments will appear here.
+  </div>
+</section>
   <!-- PAYMENT HISTORY AND FINANCIAL REPORTS -->
 
 <section>
@@ -633,7 +656,95 @@ async function loadApplications() {
     );
   });
 }
+// LOAD APPLICANT BANK TRANSFER PAYMENTS
 
+async function loadApplicantPayments() {
+  const container = document.getElementById("applicantPaymentsList");
+  const message = document.getElementById("applicantPaymentsMessage");
+
+  container.textContent = "Loading applicant payments...";
+  message.textContent = "";
+
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "admin-list-applicant-payments"
+    );
+
+    if (error) throw error;
+
+    const payments = (data.payments || []).filter(
+      payment => payment.payment_status === "Pending"
+    );
+
+    if (payments.length === 0) {
+      container.textContent = "No pending applicant bank transfers.";
+      return;
+    }
+
+    container.innerHTML = payments.map(payment => `
+      <div class="payment-card" style="border:1px solid #ddd;padding:15px;margin:12px 0;border-radius:8px;">
+        <p><strong>Email:</strong> ${payment.applicant_email || ""}</p>
+        <p><strong>Phone:</strong> ${payment.applicant_phone || ""}</p>
+        <p><strong>Fee:</strong> ${payment.payment_type || ""}</p>
+        <p><strong>Amount:</strong> ₦${Number(payment.amount).toLocaleString()}</p>
+        <p><strong>Reference:</strong> ${payment.payment_reference || ""}</p>
+        <p><strong>Date:</strong> ${payment.created_at ? new Date(payment.created_at).toLocaleString() : ""}</p>
+        <p><strong>Status:</strong> ${payment.payment_status || ""}</p>
+
+        <button type="button" onclick="updateApplicantPayment('${payment.id}', 'confirm')">
+          Confirm Payment
+        </button>
+
+        <button type="button" onclick="updateApplicantPayment('${payment.id}', 'reject')">
+          Reject Payment
+        </button>
+      </div>
+    `).join("");
+
+  } catch (error) {
+    console.error("Applicant payment loading error:", error);
+    container.textContent = "Could not load applicant payments.";
+    message.textContent = error.message || "Please try again.";
+  }
+}
+  // CONFIRM OR REJECT APPLICANT PAYMENT
+
+async function updateApplicantPayment(id, decision) {
+  const action = decision === "confirm" ? "confirm" : "reject";
+
+  if (action === "confirm") {
+    if (!confirm("Have you checked your Access Bank account and confirmed that this payment was received?")) {
+      return;
+    }
+  } else {
+    if (!confirm("Are you sure you want to reject this payment?")) {
+      return;
+    }
+  }
+
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "admin-update-applicant-payment",
+      {
+        body: {
+          payment_id: id,
+          decision: action
+        }
+      }
+    );
+
+    if (error) throw error;
+    if (data.error) throw new Error(data.error);
+
+    alert(data.message || "Payment updated successfully.");
+
+    await loadApplicantPayments();
+
+  } catch (error) {
+    console.error("Applicant payment update error:", error);
+    alert(error.message || "Could not update applicant payment.");
+  }
+}
 // APPROVE OR REJECT APPLICATION
 
 async function updateApplication(id, status) {
