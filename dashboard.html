@@ -667,7 +667,7 @@ async function loadApplicantPayments() {
   message.textContent = "";
 
   try {
-    const { data, error } = await supabase.functions.invoke(
+    const { data, error } = await db.functions.invoke(
       "admin-list-applicant-payments"
     );
 
