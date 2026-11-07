@@ -724,7 +724,7 @@ async function updateApplicantPayment(id, decision) {
   }
 
   try {
-    const { data, error } = await supabase.functions.invoke(
+    const { data, error } = await db.functions.invoke(
       "admin-update-applicant-payment",
       {
         body: {
