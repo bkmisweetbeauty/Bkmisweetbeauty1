@@ -2142,14 +2142,72 @@ async function loadLearningMaterials() {
       <p>${escapeMaterialHTML(material.description)}</p>
       <p>Course: ${escapeMaterialHTML(material.course)}</p>
       <p>Status: ${material.is_active ? "Active" : "Inactive"}</p>
+
       <a href="${escapeMaterialHTML(material.file_url)}"
          target="_blank"
          rel="noopener noreferrer">Open PDF</a>
+
+      <button
+        type="button"
+        class="deleteMaterialButton"
+        data-id="${escapeMaterialHTML(material.id)}"
+        data-url="${escapeMaterialHTML(material.file_url)}">
+        Delete Material
+      </button>
     </div>
   `).join("");
+
+  container.querySelectorAll(".deleteMaterialButton").forEach(button => {
+    button.addEventListener("click", async function() {
+      const materialId = this.dataset.id;
+      const fileUrl = this.dataset.url;
+
+      if (!confirm("Are you sure you want to delete this learning material?")) {
+        return;
+      }
+
+      this.disabled = true;
+      this.textContent = "Deleting...";
+
+      const { error: deleteError } = await db
+        .from("LearningMaterials")
+        .delete()
+        .eq("id", materialId);
+
+      if (deleteError) {
+        alert("Could not delete material: " + deleteError.message);
+        this.disabled = false;
+        this.textContent = "Delete Material";
+        return;
+      }
+
+      // Remove the PDF from Supabase Storage
+      try {
+        const marker = "/object/public/learning-materials/";
+        const pathname = new URL(fileUrl).pathname;
+        const position = pathname.indexOf(marker);
+
+        if (position !== -1) {
+          const filePath = decodeURIComponent(
+            pathname.substring(position + marker.length)
+          );
+
+          const { error: storageError } = await db.storage
+            .from("learning-materials")
+            .remove([filePath]);
+
+          if (storageError) {
+            alert("The material record was deleted, but the PDF could not be removed from storage: " + storageError.message);
+          }
+        }
+      } catch (error) {
+        alert("The material record was deleted, but the PDF storage cleanup failed.");
+      }
+
+      await loadLearningMaterials();
+    });
+  });
 }
-
-
 // UPLOAD LEARNING MATERIAL
 
 document.getElementById("uploadMaterialButton").addEventListener(
