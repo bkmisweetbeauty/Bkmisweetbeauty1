@@ -746,6 +746,8 @@ async function updateApplicantPayment(id, decision) {
     alert(error.message || "Could not update applicant payment.");
   }
 }
+  document.getElementById("refreshApplicantPayments")
+  .addEventListener("click", loadApplicantPayments);
 // APPROVE OR REJECT APPLICATION
 
 async function updateApplication(id, status) {
