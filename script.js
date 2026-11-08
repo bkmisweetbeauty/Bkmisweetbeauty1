@@ -259,6 +259,37 @@ function showApplicantPaymentPortal(token) {
       return;
     }
 
+const birthYear = document.getElementById("bkmiBirthYear").value;
+const birthMonth = document.getElementById("bkmiBirthMonth").value;
+const birthDay = document.getElementById("bkmiBirthDay").value;
+
+if (!birthYear || !birthMonth || !birthDay) {
+  messageElement.textContent = "Please complete your date of birth.";
+  return;
+}
+
+const dateOfBirth = `${birthYear}-${birthMonth}-${birthDay}`;
+
+const parsedDate = new Date(`${dateOfBirth}T00:00:00`);
+
+if (
+  parsedDate.getFullYear() !== Number(birthYear) ||
+  parsedDate.getMonth() + 1 !== Number(birthMonth) ||
+  parsedDate.getDate() !== Number(birthDay) ||
+  parsedDate > new Date()
+) {
+  messageElement.textContent = "Please enter a valid date of birth.";
+  return;
+}
+
+const guarantorEmail =
+  document.getElementById("bkmiGuarantorEmail").value.trim();
+
+if (guarantorEmail && !document.getElementById("bkmiGuarantorEmail").checkValidity()) {
+  messageElement.textContent = "Please enter a valid guarantor email address.";
+  return;
+}
+
     submitButton.disabled = true;
     submitButton.textContent = "Submitting...";
 
@@ -270,10 +301,28 @@ function showApplicantPaymentPortal(token) {
             headers: {
               Authorization: `Bearer ${savedToken}`
             },
-            body: {
-              course: document.getElementById("bkmiCourse").value,
-              message: document.getElementById("bkmiMessage").value
-            }
+            
+body: {
+  course: document.getElementById("bkmiCourse").value,
+  message: document.getElementById("bkmiMessage").value,
+
+  date_of_birth: dateOfBirth,
+
+  highest_education:
+    document.getElementById("bkmiEducation").value,
+
+  house_address:
+    document.getElementById("bkmiAddress").value.trim(),
+
+  guarantor_name:
+    document.getElementById("bkmiGuarantorName").value.trim(),
+
+  guarantor_phone:
+    document.getElementById("bkmiGuarantorPhone").value.trim(),
+
+  guarantor_email: guarantorEmail
+}
+
           }
         );
 
