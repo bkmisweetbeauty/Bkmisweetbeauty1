@@ -327,6 +327,48 @@ footer {
 
   <p id="onlinePaymentMessage"></p>
 </div>
+
+    
+<!-- BANK TRANSFER PAYMENT OPTION -->
+
+<h2>Pay by Bank Transfer</h2>
+
+<div class="detail">
+  <strong>Account Name</strong>
+  Bkmi-Sweetbeauty
+
+  <strong style="margin-top:15px;">Bank</strong>
+  Access Bank
+
+  <strong style="margin-top:15px;">Account Number</strong>
+  <span id="schoolAccountNumber" style="font-size:22px;font-weight:bold;">
+    0789652409
+  </span>
+
+  <button type="button" id="copyAccountButton">
+    COPY ACCOUNT NUMBER
+  </button>
+
+  <p id="copyAccountMessage" class="message"></p>
+</div>
+
+<div class="detail">
+  <strong>After making your transfer</strong>
+  1. Send your payment receipt to BKMI on WhatsApp.
+  2. Include your full name and registration number.
+  3. Wait for BKMI administration to verify your payment.
+
+  <a
+    href="https://wa.me/2347037115801?text=Hello%20BKMI%2C%20I%20have%20made%20a%20bank%20transfer%20for%20my%20school%20fees."
+    target="_blank"
+    rel="noopener noreferrer"
+    style="display:block;text-align:center;background:#168b50;color:white;padding:14px;border-radius:7px;text-decoration:none;font-weight:bold;margin-top:15px;"
+  >
+    SEND PAYMENT RECEIPT ON WHATSAPP
+  </a>
+</div>
+
+    
     <!-- STUDENT LEARNING MATERIALS -->
 
 <h2>My Learning Materials</h2>
@@ -414,6 +456,28 @@ document.getElementById("payOnlineButton").addEventListener(
     }
   }
 );
+
+  
+// COPY BKMI BANK ACCOUNT NUMBER
+
+document.getElementById("copyAccountButton").addEventListener(
+  "click",
+  async function() {
+
+    const accountNumber = "0789652409";
+    const message = document.getElementById("copyAccountMessage");
+
+    try {
+      await navigator.clipboard.writeText(accountNumber);
+      message.textContent = "Account number copied successfully!";
+      message.style.color = "#247a38";
+    } catch (error) {
+      message.textContent = "Please copy the account number manually.";
+      message.style.color = "#b3261e";
+    }
+  }
+);
+
 function showMessage(message, color = "#b3261e") {
   const box = document.getElementById("portalMessage");
   box.textContent = message;
