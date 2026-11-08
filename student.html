@@ -745,6 +745,7 @@ if (materialsError) {
       `;
     }).join("");
   }
+  }
 
   
 // CHECK WHETHER STUDENT HAS ACCEPTED POLICY VERSION 1.0
@@ -771,6 +772,7 @@ if (policyAcceptance) {
   document.getElementById("studentDashboard").style.display = "block";
   return;
 }
+  
 
 // STUDENT MUST ACCEPT POLICY BEFORE ENTERING DASHBOARD
 
@@ -837,6 +839,7 @@ acceptButton.onclick = async function() {
   policySection.style.display = "none";
   document.getElementById("studentDashboard").style.display = "block";
 };
+  }
 
 
 // STUDENT ACCOUNT CREATION
