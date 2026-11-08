@@ -95,6 +95,74 @@ function showApplicantPaymentPortal(token) {
         <option value="Professional Braiding">Professional Braiding</option>
       </select>
 
+<h3>Personal Information & Guarantor Details</h3>
+
+<label for="bkmiBirthYear">Date of Birth * — Year</label>
+<select id="bkmiBirthYear" required
+  style="display:block;width:100%;padding:12px;margin:10px 0;">
+  <option value="">Select Year</option>
+  ${Array.from({length: new Date().getFullYear() - 1939}, (_, i) => {
+    const y = new Date().getFullYear() - i;
+    return `<option value="${y}">${y}</option>`;
+  }).join("")}
+</select>
+
+<label for="bkmiBirthMonth">Date of Birth * — Month</label>
+<select id="bkmiBirthMonth" required
+  style="display:block;width:100%;padding:12px;margin:10px 0;">
+  <option value="">Select Month</option>
+  ${["January","February","March","April","May","June","July","August","September","October","November","December"]
+    .map((m,i) => `<option value="${String(i+1).padStart(2,"0")}">${m}</option>`).join("")}
+</select>
+
+<label for="bkmiBirthDay">Date of Birth * — Day</label>
+<select id="bkmiBirthDay" required
+  style="display:block;width:100%;padding:12px;margin:10px 0;">
+  <option value="">Select Day</option>
+  ${Array.from({length:31}, (_,i) => {
+    const d = String(i+1).padStart(2,"0");
+    return `<option value="${d}">${i+1}</option>`;
+  }).join("")}
+</select>
+
+<label for="bkmiEducation">Highest Level of Education (Optional)</label>
+<select id="bkmiEducation"
+  style="display:block;width:100%;padding:12px;margin:10px 0;">
+  <option value="">Select Education Level</option>
+  <option>Primary School</option>
+  <option>Junior Secondary School</option>
+  <option>Senior Secondary School (WAEC/NECO/SSCE)</option>
+  <option>OND</option>
+  <option>NCE</option>
+  <option>HND</option>
+  <option>Bachelor's Degree</option>
+  <option>Postgraduate Degree</option>
+  <option>Other</option>
+  <option>No Formal Education</option>
+</select>
+
+<label for="bkmiAddress">House Address (Optional)</label>
+<textarea id="bkmiAddress" rows="3"
+  style="display:block;width:100%;padding:12px;margin:10px 0;"
+  placeholder="Enter your residential address"></textarea>
+
+<h3>Guarantor Details (Optional)</h3>
+
+<label for="bkmiGuarantorName">Guarantor's Full Name</label>
+<input type="text" id="bkmiGuarantorName"
+  style="display:block;width:100%;padding:12px;margin:10px 0;"
+  placeholder="Guarantor's full name">
+
+<label for="bkmiGuarantorPhone">Guarantor's Phone Number</label>
+<input type="tel" id="bkmiGuarantorPhone"
+  style="display:block;width:100%;padding:12px;margin:10px 0;"
+  placeholder="Guarantor's phone number">
+
+<label for="bkmiGuarantorEmail">Guarantor's Email Address</label>
+<input type="email" id="bkmiGuarantorEmail"
+  style="display:block;width:100%;padding:12px;margin:10px 0;"
+  placeholder="Guarantor's email address">
+
       <label for="bkmiMessage">Additional Information (Optional)</label>
       <textarea id="bkmiMessage" rows="4"
         style="display:block;width:100%;padding:12px;margin:10px 0;"
