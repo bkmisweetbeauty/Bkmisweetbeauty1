@@ -203,6 +203,60 @@ footer {
 
   </div>
 
+  
+<!-- COMPULSORY STUDENT POLICY ACCEPTANCE -->
+
+<div class="card" id="policyAcceptanceSection" style="display:none;">
+
+  <h2>BKMI Student Policy & Agreement</h2>
+
+  <p>
+    All registered BKMI students must read and accept
+    the school's rules and regulations before accessing
+    the student portal.
+  </p>
+
+  <iframe
+    id="policyPdfFrame"
+    title="BKMI Student Policy"
+    style="width:100%;height:450px;border:1px solid #ddd;border-radius:8px;"
+  ></iframe>
+
+  <p>
+    <a
+      id="policyDownloadLink"
+      href="#"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      OPEN OR DOWNLOAD STUDENT POLICY
+    </a>
+  </p>
+
+  <label style="display:flex;align-items:flex-start;gap:10px;">
+    <input
+      type="checkbox"
+      id="policyAgreeCheckbox"
+      style="width:20px;height:20px;margin-top:2px;"
+    >
+    <span>
+      I confirm that I have read and understood the
+      BKMI Student Policy and agree to comply with it.
+    </span>
+  </label>
+
+  <button
+    type="button"
+    id="acceptPolicyButton"
+    disabled
+  >
+    I AGREE AND ACCEPT
+  </button>
+
+  <p class="message" id="policyMessage"></p>
+
+</div>
+
 
   <div class="card dashboard" id="studentDashboard">
 
