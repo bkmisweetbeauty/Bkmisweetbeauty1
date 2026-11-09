@@ -83,16 +83,17 @@ function showApplicantPaymentPortal(token) {
       <label for="bkmiCourse">Select Your Course *</label>
       <select id="bkmiCourse" required
         style="display:block;width:100%;padding:12px;margin:10px 0;">
-        <option value="">Choose a course</option>
-        <option value="Cosmetology">Cosmetology</option>
-        <option value="Hairdressing">Hairdressing</option>
-        <option value="Makeup Artistry">Makeup Artistry</option>
-        <option value="Nail Technology">Nail Technology</option>
-        <option value="Spa Therapy">Spa Therapy</option>
-        <option value="Semi-Permanent Brows and Lashes">Semi-Permanent Brows and Lashes</option>
-        <option value="Barbering">Barbering</option>
-        <option value="Wig Making">Wig Making</option>
-        <option value="Professional Braiding">Professional Braiding</option>
+       <option value="">Choose a course</option>
+<option value="Barbering and Natural Dreadlocks">Barbering and Natural Dreadlocks</option>
+<option value="Braiding">Braiding</option>
+<option value="Cosmetology Course 1">Cosmetology Course 1</option>
+<option value="Cosmetology Course 2">Cosmetology Course 2</option>
+<option value="Facials and Aesthetics Therapy">Facials and Aesthetics Therapy</option>
+<option value="Hairdressing">Hairdressing</option>
+<option value="Makeup &amp; Gele Artistry">Makeup &amp; Gele Artistry</option>
+<option value="Nail Technology">Nail Technology</option>
+<option value="Professional Wig Training">Professional Wig Training</option>
+<option value="Semi-Permanent Brows and Eyelash">Semi-Permanent Brows and Eyelash</option>
       </select>
 
 <h3>Personal Information & Guarantor Details</h3>
