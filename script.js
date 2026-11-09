@@ -199,8 +199,8 @@ function showApplicantPaymentPortal(token) {
           "submit-applicant-application",
           {
             headers: {
-              Authorization: `Bearer ${savedToken}`
-            },
+  "x-applicant-token": savedToken
+},
             body: {
               action: "check_payment_status"
             }
@@ -298,9 +298,9 @@ if (guarantorEmail && !document.getElementById("bkmiGuarantorEmail").checkValidi
         await supabaseClient.functions.invoke(
           "submit-applicant-application",
           {
-            headers: {
-              "x-applicant-token": savedToken
-            },
+        headers: {
+  Authorization: `Bearer ${applicantToken}`
+},
             
 body: {
   course: document.getElementById("bkmiCourse").value,
