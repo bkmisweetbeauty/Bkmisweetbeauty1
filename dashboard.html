@@ -842,6 +842,7 @@ async function updateFullApplicationStatus(id, status) {
   if (!confirmation) return;
 
   try {
+
     // Retrieve completed application
     const { data: applicant, error: fetchError } = await db
       .from("FullApplications")
@@ -850,7 +851,9 @@ async function updateFullApplicationStatus(id, status) {
       .single();
 
     if (fetchError) {
-      throw new Error("Could not retrieve application: " + fetchError.message);
+      throw new Error(
+        "Could not retrieve application: " + fetchError.message
+      );
     }
 
     // Update application status
@@ -860,24 +863,27 @@ async function updateFullApplicationStatus(id, status) {
       .eq("id", id);
 
     if (updateError) {
-      throw new Error("Could not update application: " + updateError.message);
+      throw new Error(
+        "Could not update application: " + updateError.message
+      );
     }
 
-    // Send admission email after final approval
+    // Continue only when application is approved
     if (status === "Approved") {
 
       const studentEmail = (applicant.email || "").trim();
       const studentPhone = (applicant.phone || "").trim();
+      const studentName = (applicant.full_name || "").trim();
 
       if (!studentEmail) {
         throw new Error(
-          "Application approved, but the student's email address is missing."
+          "Application approved, but the student's email is missing."
         );
       }
 
       let studentRecord = null;
 
-      // Find existing student by email
+      // STEP 1: Find existing student by email
       const { data: emailStudent, error: emailLookupError } = await db
         .from("Students")
         .select('"Registration Number"')
@@ -886,13 +892,14 @@ async function updateFullApplicationStatus(id, status) {
 
       if (emailLookupError) {
         throw new Error(
-          "Could not retrieve student record: " + emailLookupError.message
+          "Could not search for student by email: " +
+          emailLookupError.message
         );
       }
 
       studentRecord = emailStudent;
 
-      // If not found, search by phone number
+      // STEP 2: If not found, search by phone
       if (!studentRecord && studentPhone) {
 
         const { data: phoneStudent, error: phoneLookupError } = await db
@@ -903,7 +910,7 @@ async function updateFullApplicationStatus(id, status) {
 
         if (phoneLookupError) {
           throw new Error(
-            "Could not retrieve student by phone: " +
+            "Could not search for student by phone: " +
             phoneLookupError.message
           );
         }
@@ -911,52 +918,89 @@ async function updateFullApplicationStatus(id, status) {
         studentRecord = phoneStudent;
       }
 
-      if (!studentRecord || !studentRecord["Registration Number"]) {
+      // STEP 3: Create student if no existing record was found
+      if (!studentRecord) {
+
+        const { data: newStudent, error: insertError } = await db
+          .from("Students")
+          .insert({
+            "Full Name": studentName,
+            "Email": studentEmail,
+            "Phone Number": studentPhone || null,
+            "Course": applicant.course,
+            "Enrollment Date": new Date().toISOString().split("T")[0],
+            "student Status": "Pending"
+          })
+          .select('"Registration Number"')
+          .single();
+
+        if (insertError) {
+          throw new Error(
+            "Student record could not be created: " +
+            insertError.message
+          );
+        }
+
+        studentRecord = newStudent;
+      }
+
+      // STEP 4: Retrieve registration number
+      const registrationNumber =
+        studentRecord?.["Registration Number"];
+
+      if (!registrationNumber) {
         throw new Error(
-          "Application approved, but no student registration number was found. Email not sent."
+          "Student record exists, but no registration number was generated. " +
+          "Please check the Students registration trigger."
         );
       }
 
-      // Call the existing Supabase email function
+      // STEP 5: Send admission email
       const { data: emailData, error: emailError } =
         await db.functions.invoke("send-admission-email", {
           body: {
-            studentName: applicant.full_name,
+            studentName: studentName,
             email: studentEmail,
-            registrationNumber: studentRecord["Registration Number"],
+            registrationNumber: registrationNumber,
             course: applicant.course
           }
         });
 
       if (emailError) {
         throw new Error(
-          "Application approved, but email sending failed: " +
+          "Student record saved, but admission email failed: " +
           emailError.message
         );
       }
 
       if (emailData?.error) {
         throw new Error(
-          "Application approved, but email sending failed: " +
+          "Student record saved, but admission email failed: " +
           emailData.error
         );
       }
 
       alert(
-        "Application approved successfully! Admission email sent to " +
-        studentEmail
+        "Admission approved successfully!\n\n" +
+        "Student: " + studentName + "\n" +
+        "Registration Number: " + registrationNumber + "\n" +
+        "Admission email sent to: " + studentEmail
       );
 
     } else {
+
       alert("Completed application marked as Rejected.");
+
     }
 
     await loadFullApplications();
 
   } catch (error) {
+
     console.error("Final admission approval error:", error);
     alert(error.message);
     await loadFullApplications();
+
   }
 }
 
