@@ -830,7 +830,7 @@ async function loadFullApplications() {
 }
 
 
-// UPDATE COMPLETED APPLICATION STATUS
+// UPDATE COMPLETED APPLICATION STATUS AND SEND ADMISSION EMAIL
 
 async function updateFullApplicationStatus(id, status) {
 
@@ -841,20 +841,126 @@ async function updateFullApplicationStatus(id, status) {
 
   if (!confirmation) return;
 
-  const { error } = await db
-    .from("FullApplications")
-    .update({ application_status: status })
-    .eq("id", id);
+  try {
+    // Retrieve completed application
+    const { data: applicant, error: fetchError } = await db
+      .from("FullApplications")
+      .select("*")
+      .eq("id", id)
+      .single();
 
-  if (error) {
-    alert("Could not update application: " + error.message);
-    return;
+    if (fetchError) {
+      throw new Error("Could not retrieve application: " + fetchError.message);
+    }
+
+    // Update application status
+    const { error: updateError } = await db
+      .from("FullApplications")
+      .update({ application_status: status })
+      .eq("id", id);
+
+    if (updateError) {
+      throw new Error("Could not update application: " + updateError.message);
+    }
+
+    // Send admission email after final approval
+    if (status === "Approved") {
+
+      const studentEmail = (applicant.email || "").trim();
+      const studentPhone = (applicant.phone || "").trim();
+
+      if (!studentEmail) {
+        throw new Error(
+          "Application approved, but the student's email address is missing."
+        );
+      }
+
+      let studentRecord = null;
+
+      // Find existing student by email
+      const { data: emailStudent, error: emailLookupError } = await db
+        .from("Students")
+        .select('"Registration Number"')
+        .eq("Email", studentEmail)
+        .maybeSingle();
+
+      if (emailLookupError) {
+        throw new Error(
+          "Could not retrieve student record: " + emailLookupError.message
+        );
+      }
+
+      studentRecord = emailStudent;
+
+      // If not found, search by phone number
+      if (!studentRecord && studentPhone) {
+
+        const { data: phoneStudent, error: phoneLookupError } = await db
+          .from("Students")
+          .select('"Registration Number"')
+          .eq("Phone Number", studentPhone)
+          .maybeSingle();
+
+        if (phoneLookupError) {
+          throw new Error(
+            "Could not retrieve student by phone: " +
+            phoneLookupError.message
+          );
+        }
+
+        studentRecord = phoneStudent;
+      }
+
+      if (!studentRecord || !studentRecord["Registration Number"]) {
+        throw new Error(
+          "Application approved, but no student registration number was found. Email not sent."
+        );
+      }
+
+      // Call the existing Supabase email function
+      const { data: emailData, error: emailError } =
+        await db.functions.invoke("send-admission-email", {
+          body: {
+            studentName: applicant.full_name,
+            email: studentEmail,
+            registrationNumber: studentRecord["Registration Number"],
+            course: applicant.course
+          }
+        });
+
+      if (emailError) {
+        throw new Error(
+          "Application approved, but email sending failed: " +
+          emailError.message
+        );
+      }
+
+      if (emailData?.error) {
+        throw new Error(
+          "Application approved, but email sending failed: " +
+          emailData.error
+        );
+      }
+
+      alert(
+        "Application approved successfully! Admission email sent to " +
+        studentEmail
+      );
+
+    } else {
+      alert("Completed application marked as Rejected.");
+    }
+
+    await loadFullApplications();
+
+  } catch (error) {
+    console.error("Final admission approval error:", error);
+    alert(error.message);
+    await loadFullApplications();
   }
-
-  alert("Completed application marked as " + status + ".");
-
-  await loadFullApplications();
 }
+
+
 // LOAD APPLICANT BANK TRANSFER PAYMENTS
 
 async function loadApplicantPayments() {
