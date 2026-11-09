@@ -298,8 +298,8 @@ if (guarantorEmail && !document.getElementById("bkmiGuarantorEmail").checkValidi
         await supabaseClient.functions.invoke(
           "submit-applicant-application",
           {
-        headers: {
-  Authorization: `Bearer ${applicantToken}`
+      headers: {
+  "x-applicant-token": savedToken
 },
             
 body: {
@@ -424,8 +424,8 @@ if (applicationForm) {
           await supabaseClient.functions.invoke(
             "initialize-applicant-bank-transfer",
             {
-              headers: {
-  "x-applicant-token": savedToken
+            headers: {
+  Authorization: `Bearer ${applicantToken}`
 },
               body: {
                 payment_type: paymentType
