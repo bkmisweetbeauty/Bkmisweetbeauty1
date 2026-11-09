@@ -299,7 +299,7 @@ if (guarantorEmail && !document.getElementById("bkmiGuarantorEmail").checkValidi
           "submit-applicant-application",
           {
             headers: {
-              Authorization: `Bearer ${savedToken}`
+              "x-applicant-token": savedToken
             },
             
 body: {
