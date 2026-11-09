@@ -619,11 +619,12 @@ document.getElementById("logoutButton").addEventListener("click", async () => {
   window.location.href = "admin.html";
 });
 
-// APPLICATION MANAGEMENT
+// LOAD INITIAL ENQUIRIES AND COMPLETED APPLICATIONS
 
 async function loadApplications() {
   const container = document.getElementById("applicationsList");
-  container.textContent = "Loading applications...";
+
+  container.textContent = "Loading initial enquiries...";
 
   const { data, error } = await db
     .from("Applications")
@@ -631,42 +632,228 @@ async function loadApplications() {
     .order("created_at", { ascending: false });
 
   if (error) {
-    container.textContent = "Could not load applications: " + error.message;
+    container.textContent =
+      "Could not load initial enquiries: " + error.message;
+  } else if (!data || data.length === 0) {
+    container.textContent = "No initial enquiries found.";
+  } else {
+    container.innerHTML = data.map(app => `
+      <div class="card">
+        <h3>${escapeHTML(app["Full Name"] || "Applicant")}</h3>
+
+        <p>Phone: ${escapeHTML(app["Phone Number"] || "")}</p>
+        <p>Email: ${escapeHTML(app.Email || "")}</p>
+        <p>Course: ${escapeHTML(app.Course || "")}</p>
+        <p>Message: ${escapeHTML(app.Message || "")}</p>
+
+        <p>Status:
+          ${escapeHTML(app["Application Status"] || "Pending")}
+        </p>
+
+        <p class="small">
+          Submitted: ${escapeHTML(app.created_at || "")}
+        </p>
+
+        <div class="actions">
+          <button
+            class="application-action"
+            data-id="${escapeHTML(app.id)}"
+            data-status="Approved">
+            Approve
+          </button>
+
+          <button
+            class="warning application-action"
+            data-id="${escapeHTML(app.id)}"
+            data-status="Rejected">
+            Reject
+          </button>
+
+          <button
+            class="danger application-delete"
+            data-id="${escapeHTML(app.id)}">
+            Delete
+          </button>
+        </div>
+      </div>
+    `).join("");
+
+    container.querySelectorAll(".application-action").forEach(button => {
+      button.addEventListener("click", () =>
+        updateApplication(button.dataset.id, button.dataset.status)
+      );
+    });
+
+    container.querySelectorAll(".application-delete").forEach(button => {
+      button.addEventListener("click", () =>
+        deleteApplication(button.dataset.id)
+      );
+    });
+  }
+
+  await loadFullApplications();
+}
+
+
+// LOAD COMPLETED ENROLMENT APPLICATIONS
+
+async function loadFullApplications() {
+  const container = document.getElementById("fullApplicationsList");
+
+  container.textContent = "Loading completed applications...";
+
+  const { data, error } = await db
+    .from("FullApplications")
+    .select("*")
+    .order("submitted_at", { ascending: false });
+
+  if (error) {
+    container.textContent =
+      "Could not load completed applications: " + error.message;
     return;
   }
 
   if (!data || data.length === 0) {
-    container.textContent = "No applications found.";
+    container.textContent = "No completed applications found yet.";
     return;
   }
 
   container.innerHTML = data.map(app => `
     <div class="card">
-      <h3>${escapeHTML(app["Full Name"] || "Applicant")}</h3>
-      <p>Phone: ${escapeHTML(app["Phone Number"] || "")}</p>
-      <p>Email: ${escapeHTML(app.Email || "")}</p>
-      <p>Course: ${escapeHTML(app.Course || "")}</p>
-      <p>Status: ${escapeHTML(app.Status || "Pending")}</p>
+
+      <h3>${escapeHTML(app.full_name || "Applicant")}</h3>
+
+      <p><strong>Phone:</strong>
+        ${escapeHTML(app.phone || "")}
+      </p>
+
+      <p><strong>Email:</strong>
+        ${escapeHTML(app.email || "")}
+      </p>
+
+      <hr>
+
+      <h4>Course Information</h4>
+
+      <p><strong>Selected Course:</strong>
+        ${escapeHTML(app.course || "")}
+      </p>
+
+      <p><strong>Regular Course Fee:</strong>
+        ₦${Number(app.course_fee || 0).toLocaleString("en-NG")}
+      </p>
+
+      <p><strong>Early-Bird Fee:</strong>
+        ₦${Number(app.early_bird_fee || 0).toLocaleString("en-NG")}
+      </p>
+
+      <hr>
+
+      <h4>Personal Information</h4>
+
+      <p><strong>Date of Birth:</strong>
+        ${escapeHTML(app.date_of_birth || "Not provided")}
+      </p>
+
+      <p><strong>Highest Education:</strong>
+        ${escapeHTML(app.highest_education || "Not provided")}
+      </p>
+
+      <p><strong>House Address:</strong>
+        ${escapeHTML(app.house_address || "Not provided")}
+      </p>
+
+      <hr>
+
+      <h4>Guarantor Information</h4>
+
+      <p><strong>Guarantor Name:</strong>
+        ${escapeHTML(app.guarantor_name || "Not provided")}
+      </p>
+
+      <p><strong>Guarantor Phone:</strong>
+        ${escapeHTML(app.guarantor_phone || "Not provided")}
+      </p>
+
+      <p><strong>Guarantor Email:</strong>
+        ${escapeHTML(app.guarantor_email || "Not provided")}
+      </p>
+
+      <hr>
+
+      <p><strong>Additional Message:</strong>
+        ${escapeHTML(app.message || "None")}
+      </p>
+
+      <p><strong>Application Status:</strong>
+        ${escapeHTML(app.application_status || "Pending")}
+      </p>
+
+      <p class="small">
+        Submitted:
+        ${escapeHTML(app.submitted_at
+          ? new Date(app.submitted_at).toLocaleString("en-NG")
+          : "Not available")}
+      </p>
 
       <div class="actions">
-        <button class="application-action" data-id="${escapeHTML(app.id)}" data-status="Approved">Approve</button>
-        <button class="warning application-action" data-id="${escapeHTML(app.id)}" data-status="Rejected">Reject</button>
-        <button class="danger application-delete" data-id="${escapeHTML(app.id)}">Delete</button>
+
+        <button
+          type="button"
+          class="full-application-status"
+          data-id="${escapeHTML(app.id)}"
+          data-status="Approved">
+          Approve
+        </button>
+
+        <button
+          type="button"
+          class="warning full-application-status"
+          data-id="${escapeHTML(app.id)}"
+          data-status="Rejected">
+          Reject
+        </button>
+
       </div>
+
     </div>
   `).join("");
 
-  container.querySelectorAll(".application-action").forEach(button => {
+  container.querySelectorAll(".full-application-status").forEach(button => {
     button.addEventListener("click", () =>
-      updateApplication(button.dataset.id, button.dataset.status)
+      updateFullApplicationStatus(
+        button.dataset.id,
+        button.dataset.status
+      )
     );
   });
+}
 
-  container.querySelectorAll(".application-delete").forEach(button => {
-    button.addEventListener("click", () =>
-      deleteApplication(button.dataset.id)
-    );
-  });
+
+// UPDATE COMPLETED APPLICATION STATUS
+
+async function updateFullApplicationStatus(id, status) {
+
+  const confirmation = confirm(
+    "Are you sure you want to mark this completed application as " +
+    status + "?"
+  );
+
+  if (!confirmation) return;
+
+  const { error } = await db
+    .from("FullApplications")
+    .update({ application_status: status })
+    .eq("id", id);
+
+  if (error) {
+    alert("Could not update application: " + error.message);
+    return;
+  }
+
+  alert("Completed application marked as " + status + ".");
+
+  await loadFullApplications();
 }
 // LOAD APPLICANT BANK TRANSFER PAYMENTS
 
