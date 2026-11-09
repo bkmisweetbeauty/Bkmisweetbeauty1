@@ -425,8 +425,8 @@ if (applicationForm) {
             "initialize-applicant-bank-transfer",
             {
               headers: {
-                Authorization: `Bearer ${applicantToken}`
-              },
+  "x-applicant-token": savedToken
+},
               body: {
                 payment_type: paymentType
               }
