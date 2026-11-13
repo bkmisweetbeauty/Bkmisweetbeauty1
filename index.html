@@ -494,6 +494,7 @@ function formatCourseFee(value) {
   return "₦" + Number(value).toLocaleString("en-NG");
 }
 
+
 async function loadPublicCourses() {
   const container = document.getElementById("publicCourses");
 
@@ -514,6 +515,35 @@ async function loadPublicCourses() {
     return;
   }
 
+  const coursePages = {
+    "hairdressing": "diploma-hairdressing-lagos.html",
+    "diploma in hairdressing": "diploma-hairdressing-lagos.html",
+
+    "cosmetology course 1": "diploma-cosmetology-1-lagos.html",
+    "diploma in cosmetology 1": "diploma-cosmetology-1-lagos.html",
+
+    "cosmetology course 2": "diploma-cosmetology-2-lagos.html",
+    "diploma in cosmetology 2": "diploma-cosmetology-2-lagos.html",
+
+    "braiding": "professional-braids-course-lagos.html",
+    "professional braids course": "professional-braids-course-lagos.html",
+
+    "makeup and gele artistry": "makeup-artistry-gele-styling-lagos.html",
+    "makeup artistry and gele styling": "makeup-artistry-gele-styling-lagos.html",
+
+    "facials and aesthetics therapy": "facials-aesthetic-therapy-lagos.html",
+    "facials and aesthetic therapy": "facials-aesthetic-therapy-lagos.html",
+
+    "nail technology": "nail-technology-lagos.html",
+
+    "barbering and natural dreadlocks": "barbering-natural-dreadlocks-lagos.html",
+
+    "professional wig training": "professional-wig-training-lagos.html",
+
+    "semi-permanent brows and eyelash": "semi-permanent-brows-eyelashes-lagos.html",
+    "semi-permanent brows and eyelashes": "semi-permanent-brows-eyelashes-lagos.html"
+  };
+
   container.innerHTML = data.map(course => {
     const flyer = course.Course_Flyer_URL
       ? `<img class="course-flyer" src="${escapeCourseText(course.Course_Flyer_URL)}" alt="${escapeCourseText(course.Course_Name)} course flyer" loading="lazy">`
@@ -522,6 +552,18 @@ async function loadPublicCourses() {
     const description = escapeCourseText(course.Description || "Professional practical beauty training.");
     const name = escapeCourseText(course.Course_Name);
     const duration = escapeCourseText(course.Duration || "Contact us");
+
+    const courseKey = (course.Course_Name || "")
+      .trim()
+      .toLowerCase()
+      .replace(/&/g, "and")
+      .replace(/\s+/g, " ");
+
+    const coursePage = coursePages[courseKey];
+
+    const detailsLink = coursePage
+      ? `<a class="course-details" href="/courses/${coursePage}" style="display:block;margin:12px 0;padding:12px;text-align:center;border:1px solid #54206f;border-radius:8px;color:#54206f;font-weight:700;text-decoration:none;">VIEW COURSE DETAILS</a>`
+      : "";
 
     return `
       <article class="course-card">
@@ -532,6 +574,7 @@ async function loadPublicCourses() {
           <p><strong>Duration:</strong> ${duration}</p>
           <p class="course-price"><strong>Regular fee:</strong> ${formatCourseFee(course.Course_fee)}</p>
           <p class="early-price"><strong>Early bird fee:</strong> ${formatCourseFee(course.Early_Bird_Fee)}</p>
+          ${detailsLink}
           <a class="course-apply" href="#admissions" data-course-name="${name}">ENROL NOW</a>
         </div>
       </article>
@@ -553,6 +596,7 @@ async function loadPublicCourses() {
     });
   });
 }
+
 
 /* LOAD STUDENT PHOTOS FROM SUPABASE */
 async function loadPublicGallery() {
