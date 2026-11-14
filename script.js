@@ -44,6 +44,99 @@ if (menuButton && nav) {
 
 const applicationForm = document.getElementById("applicationForm");
 
+async function startApplicantPaystackPayment(paymentType, token) {
+  try {
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "initialize-applicant-paystack",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: {
+            payment_type: paymentType
+          }
+        }
+      );
+
+    if (error) throw error;
+
+    if (!data || !data.success || !data.authorization_url) {
+      throw new Error(
+        data?.error || "Unable to initialize Paystack payment."
+      );
+    }
+
+    window.location.href = data.authorization_url;
+
+  } catch (error) {
+    alert(error.message || "Unable to start Paystack payment.");
+  }
+}
+
+async function verifyApplicantPaystackReturn(token) {
+  const params = new URLSearchParams(window.location.search);
+  const reference =
+    params.get("reference") || params.get("trxref");
+
+  if (!reference) return;
+
+  const statusMessage =
+    document.getElementById("bkmiPaymentStatusMessage");
+
+  if (statusMessage) {
+    statusMessage.textContent =
+      "Verifying your Paystack payment. Please wait...";
+  }
+
+  try {
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "verify-applicant-paystack",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          },
+          body: {
+            reference: reference
+          }
+        }
+      );
+
+    if (error) throw error;
+
+    if (!data || !data.success) {
+      throw new Error(
+        data?.error || "Payment could not be verified."
+      );
+    }
+
+    window.history.replaceState(
+      {},
+      document.title,
+      window.location.pathname
+    );
+
+    if (statusMessage) {
+      statusMessage.textContent =
+        "Your Paystack payment has been verified. Checking your outstanding payment requirements...";
+    }
+
+    const checkButton =
+      document.getElementById("bkmiCheckPaymentButton");
+
+    if (checkButton) {
+      checkButton.click();
+    }
+
+  } catch (error) {
+    if (statusMessage) {
+      statusMessage.textContent =
+        error.message || "Payment verification failed. Please try checking again.";
+    }
+  }
+}
+
 function showApplicantPaymentPortal(token) {
   let resultBox = document.getElementById("bkmiPaymentInstructions");
 
@@ -67,6 +160,22 @@ function showApplicantPaymentPortal(token) {
   }
 
   paymentStatusBox.innerHTML = `
+   
+<div style="background:#fff;padding:18px;margin-bottom:15px;border-radius:10px;">
+  <h3>Choose Your Payment Method</h3>
+  <p>Pay both compulsory fees using Bank Transfer or Paystack.</p>
+
+  <button type="button" id="bkmiPayRegistration"
+    style="background:#54206f;color:white;padding:13px;border:0;border-radius:8px;width:100%;margin:8px 0;">
+    Pay Registration Fee — ₦10,000 with Paystack
+  </button>
+
+  <button type="button" id="bkmiPayAdmission"
+    style="background:#54206f;color:white;padding:13px;border:0;border-radius:8px;width:100%;margin:8px 0;">
+    Pay Admission Fee — ₦30,000 with Paystack
+  </button>
+</div>
+
     <h3>Enrolment Payment Verification</h3>
     <p id="bkmiPaymentStatusMessage">
       Your full application is locked until BKMI confirms both payments.
@@ -181,6 +290,24 @@ function showApplicantPaymentPortal(token) {
   const checkButton = document.getElementById("bkmiCheckPaymentButton");
   const fullApplication = document.getElementById("bkmiFullApplication");
   const statusMessage = document.getElementById("bkmiPaymentStatusMessage");
+
+  document.getElementById("bkmiPayRegistration")
+    .addEventListener("click", () => {
+      startApplicantPaystackPayment(
+        "Registration Fee",
+        sessionStorage.getItem("bkmi_applicant_token")
+      );
+    });
+
+  document.getElementById("bkmiPayAdmission")
+    .addEventListener("click", () => {
+      startApplicantPaystackPayment(
+        "Admission Fee",
+        sessionStorage.getItem("bkmi_applicant_token")
+      );
+    });
+
+  verifyApplicantPaystackReturn(token);
 
   async function checkApplicantPayments() {
     const savedToken = sessionStorage.getItem("bkmi_applicant_token");
