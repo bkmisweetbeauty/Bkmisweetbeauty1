@@ -203,6 +203,42 @@ footer {
       </button>
     </div>
 
+    <div id="resetPasswordSection" style="display:none;">
+
+      <h2>Create a New Password</h2>
+
+      <p style="text-align:center;">
+        Enter your new password below to recover your BKMI student account.
+      </p>
+
+      <form id="resetPasswordForm">
+
+        <label>New Password</label>
+        <input
+          type="password"
+          id="newStudentPassword"
+          minlength="8"
+          required
+          placeholder="At least 8 characters"
+        >
+
+        <label>Confirm New Password</label>
+        <input
+          type="password"
+          id="confirmNewStudentPassword"
+          minlength="8"
+          required
+          placeholder="Confirm your new password"
+        >
+
+        <button type="submit" id="saveNewPasswordButton">
+          SAVE NEW PASSWORD
+        </button>
+
+      </form>
+
+    </div>
+
     <div class="message" id="portalMessage"></div>
 
   </div>
